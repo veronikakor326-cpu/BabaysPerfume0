@@ -1,0 +1,3067 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Babays Perfume</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f4f0;
+  --card:#ffffff;
+  --muted:#8b8580;
+  --accent:#b3873a;
+  --dark:#2c2c2c;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto;
+  background:var(--bg);
+  color:var(--dark);
+  line-height:1.4;
+  overflow: hidden; 
+}
+
+header.appbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;background:var(--card);
+  border-bottom:1px solid rgba(0,0,0,0.05);position:sticky;top:0;z-index:20;
+}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{
+  width:40px;height:40px;border-radius:8px;background:var(--dark);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-family:"Playfair Display";font-size:18px;font-weight:700;
+}
+.title{font-size:18px;font-family:"Playfair Display";font-weight:600;}
+.subtitle{font-size:12px;color:var(--muted)}
+
+.heart-badge{position:absolute;right:0px;top:0px;background:var(--accent);color:#fff;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;display:none; z-index: 50;}
+
+.search-row{display:flex;gap:12px;padding:14px 16px;background:var(--bg);}
+.search{
+  flex:1;display:flex;gap:10px;background:var(--card);padding:10px 12px;border-radius:12px;
+  border:1px solid rgba(0,0,0,0.08);
+  align-items:center;
+}
+.search input{border:0;outline:none;background:transparent;font-size:15px;width:100%}
+
+.filter-select{
+    width:100%;padding:10px;border-radius:12px;border:1px solid rgba(0,0,0,0.1);
+    background:var(--card);color:var(--dark);font-size:14px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(150px,1fr));
+  gap:12px;
+}
+
+.card{
+  position:relative;
+  background:var(--card);
+  border-radius:16px;
+  overflow:hidden;
+  cursor:pointer;
+  box-shadow:0 8px 16px rgba(0,0,0,0.04);
+  transition:transform 0.2s, box-shadow 0.2s;
+  min-width:150px;
+}
+.card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 24px rgba(0,0,0,0.08);
+}
+
+.card .img{
+  width:100%;
+  aspect-ratio:1/1;
+  background-size:cover;
+  background-position:center;
+  border-bottom:1px solid #eee;
+}
+
+.card .info{
+  padding:12px 8px;
+  text-align:center;
+}
+
+.card .name{
+  font-size:14px;
+  font-weight:600;
+  margin-bottom:4px;
+  color:var(--dark);
+}
+
+.card .meta{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.modal-back{
+  position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;
+  justify-content:center;align-items:center;padding:20px;z-index:40;
+}
+.modal{
+  background:var(--card);border-radius:18px;
+  overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.3);
+  width:100%;max-width:760px;
+}
+
+.modal-photo{
+  width:46%;
+  min-height:380px; 
+  background-size:contain; 
+  background-repeat:no-repeat; 
+  background-color:var(--bg); 
+  background-position:center;
+  position:relative;
+}
+
+.modal-body{padding:20px}
+
+.ml{padding:8px 12px;border-radius:8px;border:1px solid var(--muted);background:var(--bg);cursor:pointer;margin-right:6px;margin-bottom:6px;font-size:14px}
+.ml.selected{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+.share-btn-header {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  width: 44px;
+  height: 44px;
+  background: var(--accent);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  z-index: 5;
+  transition: transform 0.2s;
+}
+.share-btn-header:hover {
+  transform: scale(1.1);
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px; 
+  background: var(--card);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding-top: 8px;
+  z-index: 30;
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.nav-item svg {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 2px;
+  color: var(--muted);
+  transition: color 0.2s;
+}
+
+.nav-item.active svg {
+  color: var(--accent);
+}
+
+.nav-item.active {
+    color: var(--dark);
+}
+
+.page-content {
+  display: none; 
+  position: fixed;
+  top: 72px;
+  left: 0;
+  right: 0;
+  height: calc(100vh - 72px - 80px); 
+  overflow-y: hidden;
+  background: var(--bg);
+}
+
+.page-content.active {
+  display: block; 
+}
+
+#homePage {
+    padding: 0; 
+    max-width: 600px;
+    margin: 0 auto;
+    overflow-y: hidden;
+}
+
+#homePageContentWrapper {
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 20px;
+}
+
+.home-section-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 16px;
+    margin-top:30px;
+}
+.home-section-title{
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight:700;
+    color: var(--dark);
+    margin:0;
+}
+.view-all-btn{
+    color:var(--accent);
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+    padding:6px 10px;
+    border-radius:8px;
+    background:rgba(179, 135, 58, 0.1);
+}
+
+.horizontal-scroll-container{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:10px 16px;
+    scroll-snap-type:x mandatory;
+}
+
+.horizontal-scroll-container::-webkit-scrollbar {
+    display: none;
+}
+.horizontal-scroll-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.horizontal-scroll-content{
+    display:flex;
+    gap:12px;
+    padding-bottom:10px;
+}
+
+.slider-wrapper{
+    box-shadow:0 12px 30px rgba(0,0,0,0.08);
+    position:relative;
+    width:calc(100% - 32px);
+    overflow:hidden;
+    background:var(--card);
+    border-radius:16px;      
+    margin:12px 16px 0;      
+}
+
+.slider{
+    display:flex;
+    transition:transform 0.5s ease-in-out;
+    cursor:grab;
+    scroll-snap-type:x mandatory;
+}
+.slide{
+    flex:0 0 100%;
+    width:100%;
+    aspect-ratio:16/9;
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    scroll-snap-align:start;
+}
+.slider-dots{
+    position:absolute;
+    bottom:10px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:8px;
+}
+.dot{
+    width:8px;
+    height:8px;
+    background:rgba(255,255,255,0.5);
+    border-radius:50%;
+    transition:background 0.3s, transform 0.3s;
+}
+.dot.active{
+    background:var(--accent);
+    transform:scale(1.2);
+}
+
+.deliveryBtn{
+    flex:1;padding:10px;border-radius:8px;border:1px solid var(--muted);background:var(--bg);
+    cursor:pointer;font-size:15px;color:var(--dark);
+}
+.deliveryBtn.selected{
+    background:var(--accent);color:#fff;border-color:var(--accent);
+}
+
+#addFavBtn, #openBooking, #sendOrder, #openTelegram {
+    background: var(--dark) !important;
+    color: #fff !important;
+    border-radius: 10px !important;
+    font-weight: 600;
+}
+
+.fav-item {
+    display:flex;
+    gap:12px;
+    align-items:center;
+    padding:10px;
+    border-radius:10px;
+    background:var(--bg);
+    margin-bottom:8px;
+}
+
+.fav-item img {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+#catalogPage {
+    overflow-y: auto;
+    padding-bottom: 16px;
+}
+
+#scrollToTopBtn{
+    position:fixed;
+    right:18px;
+    bottom:98px;
+    width:48px;
+    height:48px;
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:50%;
+    box-shadow:0 4px 12px rgba(0,0,0,0.25);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    z-index:50;
+    opacity:0;
+    transform:translateY(10px);
+    transition:opacity 0.3s, transform 0.3s;
+    pointer-events:none;
+}
+#scrollToTopBtn.visible{
+    opacity:1;
+    pointer-events:auto;
+    transform:translateY(0);
+}
+
+@media screen and (max-width: 600px) {
+    .modal-photo {
+        width: 100%; 
+        min-height: 250px; 
+    }
+
+    .modal #modalCard > div {
+        flex-direction: column; 
+    }
+
+    .modal-back {
+        padding: 0;
+        align-items: flex-end;
+    }
+    
+    .modal {
+        max-width: 100%;
+        width: 100%;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        max-height: 90vh; 
+        overflow-y: auto;
+    }
+}
+
+/* ── Стили для конструктора AromaBox и заказов ── */
+#aromaBoxModal { max-width:600px; padding:20px; }
+.step { display:none; }
+.step.active { display:block; }
+
+.format-card, .aroma-card {
+  background:var(--card); border-radius:12px; padding:12px; margin-bottom:12px;
+  cursor:pointer; box-shadow:0 4px 8px rgba(0,0,0,0.04); transition:all .2s;
+}
+.format-card:hover, .aroma-card:hover { transform:translateY(-2px); }
+.format-card.selected, .aroma-card.selected { border:2px solid var(--accent); }
+
+.badge { background:var(--accent); color:#fff; padding:4px 8px; border-radius:6px; font-size:12px; margin-bottom:8px; display:inline-block; }
+
+.aroma-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; overflow-y: auto; max-height: 300px; padding-right: 10px; }
+
+.aroma-card img { width:100%; height:120px; object-fit:cover; border-radius:8px; margin-bottom:8px; }
+
+.selected-slots { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
+
+.slot {
+  width:80px; height:80px; border:2px dashed var(--muted); border-radius:8px;
+  display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--muted);
+  cursor:pointer; transition:all .2s; background-size:cover; background-position:center;
+}
+.slot.filled { border:2px solid var(--accent); animation:addToBox .5s ease; }
+@keyframes addToBox { 0% { transform:scale(0.7); opacity:0; } 100% { transform:scale(1); opacity:1; } }
+
+.hints { color:#666; font-size:14px; margin-bottom:16px; }
+
+.box-img { width:100%; height:180px; background-size:cover; border-radius:12px; margin:16px 0; }
+
+.progress-bar { display:flex; justify-content:center; gap:12px; margin-bottom:24px; }
+.progress-dot { width:10px; height:10px; background:var(--muted); border-radius:50%; }
+.progress-dot.active { background:var(--accent); }
+
+#ordersModal { max-width:500px; padding:20px; }
+.order-item { background:var(--bg); border-radius:12px; padding:12px; margin-bottom:12px; }
+.order-item .buttons { display:flex; gap:8px; margin-top:8px; }
+.clear-history { width:100%; padding:12px; background:var(--bg); border:1px solid var(--muted); border-radius:10px; cursor:pointer; color:var(--dark); margin-top:16px; }
+
+#step2 .step-buttons {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--card);
+  padding: 10px;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+</style>
+</head>
+<body>
+
+<header class="appbar">
+  <div class="brand">
+    <div class="logo">B</div>
+    <div>
+      <div class="title">Babays Perfume </div>
+      <div class="subtitle" id="pageSubtitle">Главная</div>
+    </div>
+  </div>
+</header>
+
+<div id="homePage" class="page-content active">
+  <div id="homePageContentWrapper">
+    <div class="slider-wrapper">
+      <div class="slider" id="homeSlider"></div>
+      <div class="slider-dots" id="sliderDots"></div>
+    </div>
+
+    <div class="home-section-header">
+      <h3 class="home-section-title">🎁 Наборы</h3>
+      <a href="#" class="view-all-btn" data-filter="nabory">Посмотреть все</a>
+    </div>
+    <div class="horizontal-scroll-container" style="margin-bottom:20px;">
+      <div class="horizontal-scroll-content" id="naboryProducts"></div>
+    </div>
+
+    <div class="home-section-header">
+      <h3 class="home-section-title">✨ Хиты продаж</h3>
+      <a href="#" class="view-all-btn" data-filter="hit">Посмотреть все</a>
+    </div>
+    <div class="horizontal-scroll-container">
+      <div class="horizontal-scroll-content" id="hitProducts"></div>
+    </div>
+
+    <div class="home-section-header">
+      <h3 class="home-section-title">🆕 Новинки</h3>
+      <a href="#" class="view-all-btn" data-filter="new">Посмотреть все</a>
+    </div>
+    <div class="horizontal-scroll-container" style="margin-bottom:20px;">
+      <div class="horizontal-scroll-content" id="newProducts"></div>
+    </div>
+
+    <div style="padding:16px;">
+      <h2>О Babays Perfume</h2>
+      <p>Добро пожаловать в BabaysPerfume — место, где легенды парфюмерии оживают✨</p>
+      <p>💎 Любите качественный, стойкий и дорогой по звучанию парфюм? Мы тоже. 
+      📍 Здесь вы найдёте ароматы по мотивам самых культовых композиций — с точной проработкой, премиальными ингредиентами и душой в каждом флаконе.</p>
+      <p>▪️ Более 800 уникальных ароматов от ведущих мировых брендов</p>
+      <p>▪️ Разные объёмы — от 7 мл до 100 мл.</p>
+      <p>▪️ Личный подбор под ваш вкус.</p>
+      <p>▪️ Высокая стойкость — от 12+ часов.</p>
+      <p>▪️ Безупречное качество, которым мы гордимся.</p>
+    </div>
+  </div>
+</div>
+
+<div id="catalogPage" class="page-content">
+  <div class="search-row">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="opacity:.6"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2"/></svg>
+      <input type="search" id="search" placeholder="Поиск по названию, нотам или бренду" />
+    </div>
+  </div>
+  
+  <div class="filter-container">
+    <select id="filterSelect" class="filter-select">
+      <option value="all">Все ароматы</option>
+      <option value="hit">Хиты продаж</option>
+      <option value="new">Новинки</option>
+      <option value="nabory">Наборы</option>
+      <option value="Женский"> Женские</option>
+      <option value="Мужской">Мужские</option>
+      <option value="Унисекс">Унисекс</option>
+    </select>
+  </div>
+  
+  <main class="container">
+    <div class="grid" id="catalogGrid"></div>
+  </main>
+</div>
+
+<div class="modal-back" id="modalBack">
+  <div class="modal" id="modalCard">
+    <div style="position:relative; display:flex; flex-wrap:wrap">
+      <div class="share-btn-header" id="shareBtnHeader" title="Поделиться">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M12 16V3"/>
+          <path d="M8 7l4-4 4 4"/>
+          <path d="M4 13v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/>
+        </svg>
+      </div>
+
+      <div class="modal-photo" id="modalPhoto"></div>
+      <div class="modal-body" style="flex:1">
+        <h2 class="name" id="modalName" style="margin:0 0 6px 60px;font-family:'Playfair Display'"></h2>
+        <div class="meta" id="modalGender" style="margin-bottom:10px;color:#777; margin-left:60px;"></div>
+        <div class="notes" id="modalNotes" style="font-size:14px;color:#555;line-height:1.4; margin-left:60px;"></div>
+
+        <div id="mlChoice" style="margin-top:18px;display:block">
+          <div id="priceBlock" style="margin-top:10px;font-size:20px;font-weight:700;color:var(--accent)">
+            Выберите объём
+          </div>
+          <div style="margin-bottom:8px;color:#888;font-size:13px;margin-top:8px;">Доступный объём:</div>
+          <div class="ml-choose" id="mlOptions" style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="ml">7</button>
+            <button class="ml">15</button>
+            <button class="ml">30</button>
+            <button class="ml">50</button>
+            <button class="ml">100</button>
+          </div>
+        </div>
+
+        <div id="qualityBlock" style="margin-top:16px; display:none;">
+          <div style="font-size:13px;color:#888;margin-bottom:6px;">
+            Цена зависит от линейки и концентрации парфюмерных масел:
+          </div>
+          <div id="qualityOptions" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <button id="addFavBtn" style="width:100%; padding:14px; border:0; cursor:pointer; border-radius:10px; font-weight:600; background:var(--dark); color:#fff;">
+            Добавить в набор
+          </button>
+        </div>
+
+        <button id="closeModal" style="margin-top:12px; width:100%; padding:12px; background:#eee; border:0; border-radius:10px; cursor:pointer; font-weight:600;">
+          Закрыть
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-back" id="favBack">
+  <div class="modal" id="favModal" style="max-width:500px;padding-bottom:10px">
+    <div style="padding:14px 16px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:700;font-size:18px;font-family:'Playfair Display'">Мой набор</div>
+      <button id="closeFav" style="background:var(--bg);border:0;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700;color:var(--dark)">✕</button>
+    </div>
+
+    <div id="giftBlock" style="display:none;padding:12px;border-bottom:1px solid #f3f3f3;background:#e9fce9;">
+      <div style="font-size:16px;margin-bottom:4px;color:#189618;font-weight:600">🎁 Подарок</div>
+      <div style="color:#666;font-size:14px"></div>
+    </div>
+
+    <div class="fav-list" id="favList" style="padding:12px"></div>
+
+    <div id="suggestAromaBox" style="display:none;padding:12px;background:var(--accent);color:#fff;text-align:center;cursor:pointer;margin-bottom:12px;border-radius:10px;">
+      Создать свой AromaBox из этих ароматов?
+    </div>
+    <div id="suggestButtons" style="display:none;justify-content:space-around;margin-bottom:12px;">
+      <button id="agreeSuggest" style="padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;">✔️</button>
+      <button id="disagreeSuggest" style="padding:8px 16px;background:var(--bg);border:1px solid var(--muted);border-radius:8px;cursor:pointer;">✕</button>
+    </div>
+
+    <div style="padding:16px">
+      <button id="openBooking" style="width:100%;padding:14px;border:0;cursor:pointer">Продолжить</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-back" id="bookBack">
+  <div class="modal" id="bookModal" style="max-width:420px;padding:20px">
+    <h3 style="margin-top:0;font-family:'Playfair Display';font-size:22px;">Оформление</h3>
+
+    <label style="display:block;margin-top:14px;color:#555;font-size:14px;">Ваше имя:</label>
+    <input id="bookName" type="text" style="width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;margin-top:4px;font-size:15px">
+
+    <label style="display:block;margin-top:14px;color:#555;font-size:14px;">Промокод (при наличии):</label>
+    <input id="bookPromo" type="text" placeholder=" " style="width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;margin-top:4px;font-size:15px">
+
+    <div id="totalBlock" style="padding:16px 0;border-top:1px solid #eee;margin-top:20px;font-size:16px">
+      <div id="sumLine">Сумма товаров: <b id="sumPrice" style="color:var(--dark)">0 ₽</b></div>
+      <div id="discountLine" style="display:none;color:#189618;font-weight:600;margin-top:4px">
+        Скидка: −<span id="discountPrice">0</span> ₽
+      </div>
+      <div style="margin-top:12px;font-size:18px;font-weight:700">
+        Предварительная стоимость: <b id="finalPrice" style="color:var(--accent)">0 ₽</b>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;color:#555;font-size:14px;">Способ доставки:</div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="deliveryBtn" data-type="Курьер по Москве">🚚 Курьер</button>
+      <button class="deliveryBtn" data-type="Яндекс ПВЗ">📦 Яндекс ПВЗ</button>
+    </div>
+
+    <button id="sendOrder" style="width:100%;margin-top:28px;padding:14px;border:0;cursor:pointer">Отправить менеджеру</button>
+
+    <button id="closeBooking" style="margin-top:12px;width:100%;padding:12px;background:var(--bg);border:0;border-radius:10px;cursor:pointer;color:var(--dark)">Отмена</button>
+  </div>
+</div>
+
+<div class="modal-back" id="supportBack">
+  <div class="modal" id="supportModal" style="max-width:380px;padding:20px;text-align:center;">
+    <h3 style="margin-top:0;font-family:'Playfair Display';font-size:22px;">Служба поддержки</h3>
+    <p style="color:#666;font-size:15px;line-height:1.5;">
+      Наш менеджер готов помочь с выбором или оформлением заказа.
+    </p>
+    <p style="color:var(--accent);font-size:14px;margin-bottom:20px;font-weight:600;">
+      Нажав кнопку, вы перейдёте в наш Telegram-чат.
+    </p>
+    <button id="openTelegram" style="width:100%;padding:14px;border:0;cursor:pointer;background:#0088cc !important;">Написать в поддержку</button>
+    <button id="closeSupport" style="width:100%;padding:12px;background:var(--bg);border:0;border-radius:10px;cursor:pointer;font-size:15px;margin-top:10px;color:var(--dark)">Отмена</button>
+  </div>
+</div>
+
+<!-- Конструктор AromaBox -->
+<div class="modal-back" id="aromaBoxBack">
+  <div class="modal" id="aromaBoxModal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;font-size:22px;font-family:'Playfair Display'">Собрать AromaBox</h3>
+      <button id="closeAromaBox" style="background:none;border:none;font-size:24px;cursor:pointer">✕</button>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-dot active"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+
+    <div class="step active" id="step1">
+      <h4 style="text-align:center;margin-bottom:16px">Выберите формат</h4>
+      <div class="format-card" data-format="standard">
+        <div class="name">Стандарт</div>
+        <div>3 аромата по 550 ₽</div>
+        <div style="font-weight:600">1490 ₽</div>
+      </div>
+      <div class="format-card" data-format="mix">
+        <div class="name">Микс</div>
+        <div>2 × 550 ₽ + 1 × 800 ₽</div>
+        <div style="font-weight:600">1790 ₽</div>
+      </div>
+      <div class="format-card" data-format="hit">
+        <div class="name">Хит продаж</div>
+        <div>1 × 550 ₽ + 2 × 800 ₽</div>
+        <div style="font-weight:600">1990 ₽</div>
+      </div>
+      <div class="format-card" data-format="premium">
+        <div class="name">Премиум</div>
+        <div>3 аромата по 800 ₽</div>
+        <div style="font-weight:600">2190 ₽</div>
+      </div>
+      <button id="toStep2" style="width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;margin-top:20px;cursor:pointer" disabled>Далее</button>
+    </div>
+
+    <div class="step" id="step2">
+      <h4 style="text-align:center;margin-bottom:16px">Выберите ароматы</h4>
+      <div class="selected-slots" id="selectedSlots"></div>
+      <div id="hints" style="color:#666;font-size:14px;margin:16px 0;"></div>
+      <div class="aroma-grid" id="aromaGrid"></div>
+      <div class="step-buttons">
+        <button id="prevStep" style="flex:1;padding:12px;background:var(--bg);border:1px solid var(--muted);border-radius:10px;cursor:pointer">Назад</button>
+        <button id="toStep3" style="flex:1;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;cursor:pointer;margin-left:10px" disabled>Подтвердить</button>
+      </div>
+    </div>
+
+    <div class="step" id="step3">
+      <h4 style="text-align:center;margin-bottom:16px">Ваш AromaBox</h4>
+      <div class="box-img" style="background-image:url('https://via.placeholder.com/600x300/f5f0e8/b3873a?text=AromaBox')"></div>
+      <ul id="summaryAromas" style="list-style:none;padding:0;margin:0 0 16px 0;"></ul>
+      <div id="summaryNotes" style="margin-bottom:20px">
+        <b>Общее звучание нот:</b>
+        <p id="combinedNotes"></p>
+      </div>
+      <div style="font-size:20px;font-weight:700;text-align:center;margin:20px 0">
+        Итого: <span id="boxPrice"></span> ₽
+      </div>
+      <button id="addBoxToFav" style="width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;cursor:pointer">
+        Добавить в набор
+      </button>
+      <button id="prevStep2" style="width:100%;padding:12px;background:var(--bg);border:1px solid var(--muted);border-radius:10px;margin-top:8px;cursor:pointer">Назад</button>
+    </div>
+  </div>
+</div>
+
+<!-- История заказов -->
+<div class="modal-back" id="ordersBack">
+  <div class="modal" id="ordersModal">
+    <div style="padding:14px 16px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:700;font-size:18px;font-family:'Playfair Display'">Предыдущие заказы</div>
+      <button id="closeOrders" style="background:var(--bg);border:0;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700;color:var(--dark)">✕</button>
+    </div>
+    <div id="ordersList" style="padding:16px"></div>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <div class="nav-item active" data-page="home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5L12 3l9 7.5V21h-5v-7h-8v7H3v-11.5"/>
+    </svg>
+    Главная
+  </div>
+
+  <div class="nav-item" data-page="catalog">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+      <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+      <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+      <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+    </svg>
+    Каталог
+  </div>
+
+  <div class="nav-item" data-page="fav">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-4.5-9-8.5C1.5 8 4.5 5 8 6.5 10 7.5 12 10 12 10s2-2.5 4-3.5C19.5 5 22.5 8 21 12.5c-2 4-9 8.5-9 8.5z"/>
+    </svg>
+    Мой набор
+    <div class="heart-badge" id="favCount">0</div>
+  </div>
+
+  <div class="nav-item" data-page="orders">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2zM12 11V9m0 4v-2m0 4v-2"/>
+    </svg>
+    Заказы
+  </div>
+
+  <div class="nav-item" data-page="support">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M21 15a4 4 0 01-4 4H7l-4 3V7a4 4 0 014-4h10a4 4 0 014 4z"/>
+    </svg>
+    Поддержка
+  </div>
+</div>
+
+<button id="scrollToTopBtn" aria-label="Наверх">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
+  </svg>
+</button>
+
+<script>
+// ──────────────────────────────────────────────────────────────
+// МАССИВ ТОВАРОВ (примеры + наборы)
+// ──────────────────────────────────────────────────────────────
+const catalog = [
+  {
+    id: "Parfums de Marly - Layton",
+    "name": "Parfums de Marly - Layton",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_1_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "лаванда, бергамот, мандарин",
+      "middle": "герань, фиалка, жасмин",
+      "base": "ваниль, кардамон, сандал, перец, гваяк, пачули"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Essential Parfums - Bois Impérial",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_2_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "базилик, грейпфрут, сычуаньский перец",
+      "middle": "ветивер, петалия, акигалавуд",
+      "base": "амбра, пачули"
+    },
+"hit":"true",
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Dior - Sauvage Elixir",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_3_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "мускатный орех, корица, кардамон, грейпфрут",
+      "middle": "лаванда",
+      "base": "лакричник, сандал, амбра, пачули, ветивер"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Paris World Luxury - 24K",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_4_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "амбра, жасмин",
+      "middle": "миндаль, специи",
+      "base": "кедр, мускус, сладкая вата, сухофрукты"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Creed - Carmina",
+    "gender": "Женский",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_5_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "шафран, розовый перец, черешня",
+      "middle": "роза, пион",
+      "base": "мускус, кашмеран, янтарь, древесные ноты"
+    },
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+
+  },
+  {
+    "name": "Clive Christian - Matsukita",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_6_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "бергамот, мускатный орех, розовый перец",
+      "middle": "мате, китайский жасмин, гваяк, жасмин самбак",
+      "base": "мускус, амбра, пихтовый бальзам, древесные ноты"
+    },
+
+"hit":true,
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Genyum - Painter",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_12_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "чёрный перец, можжевельник",
+      "middle": "красные водоросли",
+      "base": "ветивер, мускус, белая амбра"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Tom Ford - Myrrhe Mystère",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_7_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "мирра, абсолют мирры",
+      "middle": "мускус",
+      "base": "ультраваниль, ноты дыма"
+    },
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "By Kilian - Intoxicated",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_8_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "кардамон, кофе, бергамот, альдегиды",
+      "middle": "мускатный орех, корица, табак, имбирь, герань",
+      "base": "карамель, мокко, ваниль, кумарин, пихтовый бальзам, маршмеллоу, сахар, пачули"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Afnan - Tribute Blue",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_26_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "мускатный орех, пименто, бергамот",
+      "middle": "амбра, кашемировое дерево",
+      "base": "мускус, светлое дерево, ветивер, ладан"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Anna Sui - Fantasia",
+    "gender": "Женский",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_fantasia.jpg?raw=true",
+    "notes": {
+      "top": "помело, розовый перец",
+      "middle": "пралине, малина, ваниль, цветочные ноты",
+      "base": "кипарис, гималайский кедр"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Black Grape - Black Grape",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo%20black%20.jpg?raw=true",
+    "notes": {
+      "top": "бразильский апельсин, клубника",
+      "middle": "чёрный виноград, виноградные листья",
+      "base": "джем из красных фруктов, белый мускус, ваниль из мадагаскара"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Chanel - Chance Eau de Parfum",
+    "gender": "Женский",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_13_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "розовый перец",
+      "middle": "жасмин, ирис",
+      "base": "пачули, мускус, ваниль"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Orto Parisi - Megamare",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_14_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "бергамот, лимон",
+      "middle": "морские водоросли, калон, гедион",
+      "base": "мускус, ambroxan, кедр"
+    },
+    "prices": {
+      "7": [550, 1000, 1300],
+      "15": [1100, 1900, 2500],
+      "30": [1980, 3700, 4500],
+      "50": [2750, 6100, 8000],
+      "100": [4950, 10500, 15000],
+priceCategory: 550,
+    }
+  },
+  {
+    "name": "Attar Collection - Hayati",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_15_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "малина, ягоды, ананас",
+      "middle": "взбитые сливки, мёд, чёрная смородина, слива, цветочные ноты",
+      "base": "мороженое, ваниль, белый мускус"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Jean Paul Gaultier - Le Male Elixir",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_16_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "лаванда, мята",
+      "middle": "ваниль, бензоин",
+      "base": "мёд, бобы тонка, табак"
+    },
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Maison Crivelli - Oud Maracujá",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_17_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "маракуйя, фруктовые ноты, шафран, турецкая роза",
+      "middle": "уд, пачули из индонезии, бензоин",
+      "base": "кожа, akigalawood, амбра, ваниль, лабданум"
+    },
+"hit":true,
+    "prices": { "7": 1300, "15": 2500, "30": 4500, "50": 8000, "100": 15000 }
+  },
+  {
+    "name": "Maison Francis Kurkdjian - Baccarat Rouge 540",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_18_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "горький миндаль, шафран",
+      "middle": "египетский жасмин, вирджинский кедр",
+      "base": "серая амбра, древесные ноты, мускус, ambroxan, кашмеран"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Vilhelm Parfumerie - Mango Skin",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_89_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "манго, ежевика, чёрный перец",
+      "middle": "корень ириса, жасмин, лотос",
+      "base": "ваниль, розовая глазурь, пачули"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Versace - Bright Crystal",
+    "gender": "Женский",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_19_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "юзу, гранат, лёд",
+      "middle": "пион, лотос, магнолия",
+      "base": "мускус, махагони, амбра"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Christian Dior - Addict",
+    "gender": "Женский",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_27_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "ежевика, лист мандарина, цветок шёлкового дерева",
+      "middle": "жасмин, цветок апельсина, цветок ночного цереуса, роза",
+      "base": "ваниль, бобы тонка, майсурское сандаловое дерево"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Givenchy - Givenchy Pour Homme",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_20_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "мандарин, грейпфрут, кориандр, фиалка",
+      "middle": "ветивер, лаванда",
+      "base": "лабданум, кедр"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Zielinski & Rozen - Pink Pepper",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_21_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "розовый перец, чёрный перец",
+      "middle": "корица, элеми",
+      "base": "кожа, амбра"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Lanvin - Éclat d’Arpège",
+    "gender": "Женский",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_22_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "сирень, лимон",
+      "middle": "чай, пион, цвет персика",
+      "base": "мускус, амбра, вирджинский кедр"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Givenchy - Ange ou Démon Le Secret",
+    "gender": "Женский",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_23_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "чайный лист, клюква, лимон, грейпфрут, апельсин",
+      "middle": "жасмин самбак, пион, водяная лилия, роза, гедион",
+      "base": "белый мускус, светлое дерево, пачули, amberwood, ваниль"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Tiziana Terenzi - Kirke",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_24_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "маракуйя, персик, малина, груша, чёрная смородина, песок",
+      "middle": "ландыш",
+      "base": "мускус, сандал, ваниль, пачули, гелиотроп"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Boadicea the Victorious - Heroine",
+    "gender": "Женский",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_25_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "фиалка, апельсин, бергамот",
+      "middle": "жасмин, роза",
+      "base": "ваниль, мускус, корень ириса, ветивер"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Haute Fragrance Company - Devil’s Intrigue",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_28_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "османтус, белый чай",
+      "middle": "сандал, цветок апельсина",
+      "base": "ваниль, кашмеран, древесные ноты"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Trussardi - Trussardi Donna",
+    "gender": "Женский",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_30_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "фруктовые ноты, юзу, лимон",
+      "middle": "жасмин, африканский апельсиновый цвет, лотос",
+      "base": "ваниль, сандал, пачули, вирджинский кедр"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Bvlgari - Tygar",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_31_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "грейпфрут",
+      "middle": "имбирь, амбретта",
+      "base": "ambroxan, мускус, ветивер, пачули"
+    },
+"hit":true,
+    "prices": { "7": 1300, "15": 2500, "30": 4500, "50": 8000, "100": 15000 }
+  },
+  {
+    "name": "Dior - Sauvage",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_43_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "бергамот, перец",
+      "middle": "лаванда, мускатный орех, сычуаньский перец",
+      "base": "амброксан, ветивер, кедр"
+    },
+"hit":true,
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Parfums de Marly - Althair",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_32_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "корица, кардамон, цветок апельсина, бергамот",
+      "middle": "Бурбонская ваниль, элеми",
+      "base": "пралине, мускус, Ambroxan, гваяк, бобы тонка, засахаренный миндаль"
+    },
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Orlov Paris - De Young Red",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_33_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "розовый перец, черный перец, мандарин, бергамот",
+      "middle": "малина, роза, жасмин",
+      "base": "Akigalawood, мускус, сандал, амбра"
+    },
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Escentric Molecules - Escentric 02",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_34_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "",
+      "middle": "",
+      "base": "амброксан, жасмин, ирис, Iso E Super"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Tom Ford - Tobacco Oud",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_35_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "виски",
+      "middle": "пряности, корица, кориандр",
+      "base": "табак, уд, ладан, сандал, пачули, бензоин, ваниль, кедр"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Juliette Has A Gun - Not A Perfume",
+    "gender": "Женский",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_36_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "",
+      "middle": "",
+      "base": "цеталокс"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Chanel - Bleu De Chanel",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_37_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "грейпфрут, лимон, мята, бергамот, розовый перец, альдегиды, кориандр",
+      "middle": "имбирь, мускатный орех, жасмин, дыня",
+      "base": "ладан, амбра, кедр, сандал, пачули, Amberwood, лабданум"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+
+  {
+    "name": "Tom Ford - Lost Cherry",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_38_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "горький миндаль, чёрная вишня, вишнёвый ликёр",
+      "middle": "вишня, слива, турецкая роза, жасмин самбак",
+      "base": "ваниль, бобы тонка, корица, перуанский бальзам, сандал, бензоин, гвоздика, кедр, пачули, ветивер"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Clive Christian - Jump Up and Kiss Me Hedonistic",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_39_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "чёрная вишня, лист фиалки, мате, бергамот, мускатный шалфей, мандарин, нероли, грейпфрут, лимон",
+      "middle": "табак, корень ириса, жасмин, папирус",
+      "base": "амбра, кожа, бобы тонка, ваниль, сандал, мускус, кашмировое дерево, лабданум, пачули, ветивер, мох"
+    },
+"hit": true,
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Zielinski & Rozen - Black Pepper & Amber, Neroli",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_40_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "чёрный перец",
+      "middle": "амбра",
+      "base": "нероли"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Elixirs of Eden - Captain Black",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_41_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "табак, амбра, бобы тонка",
+      "middle": "сандал, пачули",
+      "base": "ваниль, мёд"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Amouage - Interlude Man",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_42_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "орегано, перец, бергамот",
+      "middle": "ладан, опопонакс, амбра, лабданум",
+      "base": "агаровое дерево (уд), кожа, сандал, пачули"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "By Kilian - Good Girl Gone Bad",
+    "gender": "Женский",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_44_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "жасмин, османтус, майская роза",
+      "middle": "индийский тубероза, нарцисс",
+      "base": "янтарь, кедр"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "By Kilian - Black Phantom Memento Mori Anniversary Edition",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_45_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "ром, цианид",
+      "middle": "тёмный шоколад, кофе, миндаль, сахарный тростник",
+      "base": "карамель, сандал, гелиотроп"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "By Kilian - Smoking Hot",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_46_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "дым, яблоко",
+      "middle": "корица, табак",
+      "base": "бурбонская ваниль, лакричник, мускатный шалфей"
+    },
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Creed - Aventus",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_47_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "ананас, бергамот, чёрная смородина, яблоко",
+      "middle": "берёза, пачули, роза, жасмин",
+      "base": "дубовый мох, амбра, мускус, ваниль"
+    },
+"hit": true,
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Boadicea the Victorious - Nemer",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_48_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "шафран, чёрный перец, лемонграсс, иланг-иланг",
+      "middle": "марокканская роза, турецкая роза, классическая роза",
+      "base": "пачули, сандал, мох, кедр, мускус, кашмировое дерево, киприол, амбра, ваниль"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Mancera - Red Tobacco",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_49_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "корица, уд, ладан, шафран, мускатный орех, зелёное яблоко, белая груша",
+      "middle": "пачули, жасмин",
+      "base": "табак, мадагаскарская ваниль, амбра, сандаловое дерево, гваяк, белый мускус, ветивер"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Creed - Viking",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_50_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "розовый перец, перечная мята, бергамот, лимон, апельсин, абсент",
+      "middle": "лаванда, болгарская роза, гвоздика (пряность), ямайский перец, корень ириса, жасмин",
+      "base": "кедр, белый мускус, ветивер, бобы тонка"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Tom Ford - Vanilla Sex",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_51_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "горький миндаль",
+      "middle": "ваниль, цветочные ноты",
+      "base": "абсолют ванили, Ultravanil, бобы тонка, сандал"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Marc-Antoine Barrois - Tilia",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_52_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "липовый цвет, жасмин самбак, дрок",
+      "middle": "гелиотроп, ветивер, цветок апельсина",
+      "base": "Ambrofix, Georgywood"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Marc-Antoine Barrois - Ganymede",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_53_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "шафран, итальянский мандарин",
+      "middle": "китайский османтус, бессмертник, лист фиалки",
+      "base": "минеральные ноты, замша, Akigalawood, мускус, кедр, пачули"
+    },
+"hit": true,
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Ex Nihilo - Blue Talisman",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_54_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "бергамот, мандарин, имбирь, груша",
+      "middle": "апельсиновый цвет, Georgywood™",
+      "base": "Akigalawood™, мускус, Ambrofix™"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Initio Parfums Privés - Side Effect",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_55_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "корица, ром",
+      "middle": "табак, шафран",
+      "base": "сандал, гедион"
+    },
+    "prices": { "7": 700, "15": 1300, "30": 2500, "50": 4500, "100": 8000 }
+  },
+  {
+    "name": "Tom Ford - Cherry Smoke",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_56_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "тёмная вишня, шафран",
+      "middle": "китайский османтус с нотами абрикоса, оливы и кожи",
+      "base": "дымное дерево, ципреол, уд, глубокий древесный шлейф"
+    },
+    "prices": {
+      "7": [550, 700],
+      "15": [1100, 1300],
+      "30": [1980, 2500],
+      "50": [2750, 4500],
+      "100": [4950, 8000],
+priceCategory: 550,
+    }
+  },
+  {
+    "name": "Richard - White Chocola",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_58_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "мандарин, мускатный орех",
+      "middle": "белый шоколад, ваниль",
+      "base": "миндальный цветок, персиковый цветок, вишнёвый цветок, мимоза, белый мускус, сандал"
+    },
+    "prices": {
+      "7": [550, 800],
+      "15": [1100, 1400],
+      "30": [1980, 2500],
+      "50": [2750, 4500],
+      "100": [4950, 8000],
+priceCategory: 550,
+    }
+  },
+  {
+    "name": "Arabian Oud - Madawi Gold Edition",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_59_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "фруктовые акценты, кардамон",
+      "middle": "бобы тонка, цветок ананаса, жасмин",
+      "base": "ваниль, пачули"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Ormonde Jayne - Montabaco Intensivo",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_60_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "горный воздух, бергамот, апельсин, можжевельник, кардамон, шалфей",
+      "middle": "чай, гедион, фиалка, роза, магнолия",
+      "base": "табак, Iso E Super, мох, замша, сандал, серая амбра, бобы тонка"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Creed - Absolu Aventus",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_61_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "грейпфрут, бергамот, розовый перец, чёрная смородина, ананас, мускатный орех, гвоздика (пряность)",
+      "middle": "имбирь, цитрон, корица, кардамон, роза",
+      "base": "пачули, ветивер, дубовый мох, Ambroxan, эвернил, мускус, сандал, бобы тонка"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Tom Ford - Bitter Peach",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_57_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "дикий персик, сицилийский красный апельсин, кардамон",
+      "middle": "гелиотроп, ром, коньяк, давана, жасмин",
+      "base": "сандал, бензоин, кашмеран, ваниль, бобы тонка, лабданум, стиракс, пачули, ветивер"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Vilhelm Parfumerie - Dear Polly",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_62_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "бергамот, яблоко",
+      "middle": "чёрный чай",
+      "base": "чёрная амбра, мускус, дубовый мох"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Maison Crivelli - Hibiscus Mahajád",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_63_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "мята, чёрная смородина, гранат",
+      "middle": "роза (дамасская), гибискус",
+      "base": "кожа, ваниль, амбра, корица, амбретта"
+    },
+    "prices": { "7": 800, "15": 1500, "30": 2500, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Louis Vuitton - Imagination",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_64_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "цитрон, калабрийский бергамот, сицилийский апельсин",
+      "middle": "тунисский нероли, нигерийский имбирь, цейлонская корица",
+      "base": "китайский чёрный чай, Ambroxan, гваяк, олибанум"
+    },
+"hit": true,
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Initio Parfums Privés - Oud for Happiness",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_65_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "бергамот, имбирь",
+      "middle": "лакричник, уд, кедр",
+      "base": "ваниль, травы, мускус"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Ajmal - Amber Wood",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_66_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "кардамон, яблоко, лаванда, белый перец",
+      "middle": "кедр, корень ириса",
+      "base": "амбра, древесные ноты, пачули"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Al-Rehab - Soft",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_67_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "лимон, бергамот",
+      "middle": "жасмин, флердоранж",
+      "base": "мускус, амбра"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Lalique - Encre Noire",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_68_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "кипарис",
+      "middle": "ветивер",
+      "base": "кашемировое дерево, мускус"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Al-Rehab - Choco Musk",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_69_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "шоколад",
+      "middle": "цветочные ноты",
+      "base": "мускус, ваниль"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Amouage - Interlude Woman",
+    "gender": "Женский",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_70_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "календула, имбирь, грейпфрут, бергамот",
+      "middle": "ладан, грецкий орех, бессмертник, киви, мёд, опопонакс, кофе, сандал, роза, цветок апельсина, жасмин",
+      "base": "кожа, бензоин, уд, амбра, сандал, бобы тонка, дубовый мох, ваниль, мускус"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Yves Saint Laurent - Libre",
+    "gender": "Женский",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_71_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "лаванда, мандарин, чёрная смородина, петитгрейн",
+      "middle": "лаванда, апельсиновый цвет, жасмин",
+      "base": "ваниль, кедр, амбра, мускус"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Tiffany & Co - Tiffany",
+    "gender": "Женский",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_90_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "мандарин, бергамот, лимон",
+      "middle": "ирис, роза, чёрная смородина, персик",
+      "base": "мускус, пачули"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Byredo - Bal d'Afrique",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_72_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "бергамот, лимон, цветок африканского апельсина, бархатцы, чёрная смородина",
+      "middle": "цикламен, жасмин, фиалка",
+      "base": "ветивер, амбра, мускус, кедр"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Xerjoff - Erba Gold",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_73_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "сицилийский лимон, калабрийский бергамот, имбирь",
+      "middle": "дыня, груша, зелёное яблоко, корица, кардамон из Гватемалы, гвоздика (пряность)",
+      "base": "белый мускус, мадагаскарская ваниль, амбра, древесные ноты"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Shaik - Opulent Shaik Classic No 77",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_74_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "бергамот, лимон, лаванда, базилик",
+      "middle": "герань, корица, яблоко, гвоздика (пряность)",
+      "base": "пачули, ваниль, мускус, лабданум, кедр, дубовый мох"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Tom Ford - Tobacco Vanille",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_75_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "табак, специи",
+      "middle": "ваниль, какао, бобы тонка, цветочный аккорд",
+      "base": "сухофрукты, древесные ноты"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Nasomatto - Black Afgano",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_76_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "зелёные ноты, каннабис",
+      "middle": "смолы, табак, кофейный аккорд",
+      "base": "ладан, древесные аккорды, агаровое дерево (уд)"
+    },
+"hit": true,
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Rosendo Mateu - Nº 5 Floral, Amber, Sensual Musk",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_77_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "специи, экзотические цветы",
+      "middle": "гвоздика (цветок), ландыш",
+      "base": "амбра, ваниль, мускус"
+    },
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Roja Dove - Isola Blu",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_78_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "лайм, бергамот, лимон, чабрец, лаванда",
+      "middle": "яблоко, чёрная смородина, цветок апельсина, чампака, жасмин, кокос, лилия",
+      "base": "кедр, берёза, трава, ягоды можжевельника, мускус, розовый перец, серая амбра, амбра, дубовый мох, мате, пачули, анис, бобы тонка, лабданум, кожа, ваниль, корень ириса"
+    },
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Thomas Kosmala - No. 4 Après l’Amour",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_79_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "цедра лимона, лист горького апельсина",
+      "middle": "ароматические специи",
+      "base": "мускус, амбра, древесные ноты"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Orto Parisi - Brutus",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_80_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "бергамот, мандарин",
+      "middle": "лаванда, герань, роза",
+      "base": "пачули, кедр, мускус, амбра, лабданум, дубовый мох"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Creed - Silver Mountain Water",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_81_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "бергамот, мандарин",
+      "middle": "зелёный чай, чёрная смородина",
+      "base": "мускус, сандал, гальбанум, петитгрейн"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Kayali Fragrances - Eden Juicy Apple 01",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_82_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "красное яблоко, личи, чёрная смородина, розовый грейпфрут",
+      "middle": "лесные ягоды, цветок малины, жасмин, майская роза",
+      "base": "сахар, мускус, цветок ванили, амбра, мох"
+    },
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "By Kilian - Apple Brandy on the Rocks",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_83_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "кардамон, бергамот",
+      "middle": "яблоко, ром, бренди, ананас, ваниль, мох",
+      "base": "кедр, Ambroxan"
+    },
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Hormone Paris - Gaba",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_84_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "итальянский мандарин, апельсин, лаванда",
+      "middle": "османтус, жасмин самбак",
+      "base": "Akigalawood, ambroxan, мускус"
+    },
+"new": true,
+"hit": true,
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Le Labo - Another 13",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_85_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "груша, яблоко, цитрусы",
+      "middle": "амбретта, амилсалицилат, мох, жасмин",
+      "base": "Iso E Super, cetalox, helvetolide, ambrettolide"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Clive Christian - Blonde Amber",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_86_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "ром, олибанум, горький апельсин, кардамон, розовый перец, имбирь, бергамот, грейпфрут",
+      "middle": "сухофрукты, белый табак, сандал, тубероза, шафран, османтус, корень ириса, жасмин",
+      "base": "бобы тонка, ваниль, мирра, лабданум, пачули, мускус, кедр, ветивер"
+    },
+"hit": true,
+"new": true,
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Maison Crivelli - Oud Cédénza",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_87_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "шафран, корица, кардамон, мускатный орех, имбирь, розовый перец",
+      "middle": "финики, уд, карамель, сахарный тростник, amberwood, ладан, мирра, давана",
+      "base": "мадагаскарская ваниль, бобы тонка, масло какао, кожа, бензоин, мускус, пачули, лабданум, мате"
+    },
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "By Kilian - Angels' Share",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_88_2025-12-21_16-23-35.jpg?raw=true",
+    "notes": {
+      "top": "коньяк",
+      "middle": "корица, бобы тонка, дуб, гедион",
+      "base": "ваниль, пралине, сандал, засахарённый миндаль"
+    },
+"new": true,
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "La Sultane de Saba - Ambre Vanille Patchouli",
+    "gender": "Унисекс",
+    "img": "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/3018cf8c17fe66cd764b546ad38a503702d6ea81/images/catalog/photo_3_2025-12-28_04-44-35.jpg",
+    "notes": {
+      "top": "бергамот, камфора",
+      "middle": "ландыш, роза, сандал, амбра, пачули",
+      "base": "бензоин, ваниль, бобы тонка"
+    },
+"hit": true,
+"new": true,
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Roja Parfums - Diaghilev",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_1_2025-12-28_04-44-35.jpg?raw=true",
+    "notes": {
+      "top": "лайм, апельсин, бергамот, лимон, кумин (зира), тархун (эстрагон)",
+      "middle": "персик, жасмин, тубероза, гелиотроп, роза, фиалка, иланг-иланг, чёрная смородина",
+      "base": "бензоин, пачули, гвоздика, мускатный орех, кожа, лабданум, ветивер, дубовый мох, мускус, амбретта, стиракс, ваниль, гваяковое дерево, перуанский бальзам, цибетин"
+    },
+"new": true,
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Hormone Paris - Testosterone (This Is Not Testosterone)",
+    "gender": "Унисекс",
+    "img": "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/3018cf8c17fe66cd764b546ad38a503702d6ea81/images/catalog/photo_5_2025-12-28_04-44-35.jpg",
+    "notes": {
+      "top": "корица, розовый грейпфрут, кардамон",
+      "middle": "гваяковое дерево, жасмин самбак, ваниль",
+      "base": "пралине, сандал, мускус"
+    },
+"new": true,
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Louis Vuitton - Symphony",
+    "gender": "Унисекс",
+    "img": "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/3018cf8c17fe66cd764b546ad38a503702d6ea81/images/catalog/photo_4_2025-12-28_04-44-35.jpg",
+    "notes": {
+      "top": "грейпфрут",
+      "middle": "бергамот",
+      "base": "имбирь"
+    },
+"hit": true,
+"new": true,
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Boadicea The Victorious - Blue Sapphire",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_2_2025-12-28_04-44-35.jpg?raw=true",
+    "notes": {
+      "top": "итальянский лимон, апельсин, коморский базилик, немецкая ромашка, российский мускатный шалфей, коморский иланг-иланг",
+      "middle": "турецкая роза, египетский жасмин, китайская магнолия, тунисский мирт, корица, кардамон, шафран",
+      "base": "кашемировое дерево, индийский уд, индонезийские пачули, гаитянский ветивер, вирджинский кедр, испанский лабданум, канадская ель, амбра"
+    },
+"new": true,
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Tiziana Terenzi - Gumin",
+    "gender": "Унисекс",
+    "img": "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/3018cf8c17fe66cd764b546ad38a503702d6ea81/images/catalog/photo_7_2025-12-28_04-44-35.jpg",
+    "notes": {
+      "top": "мандарин, апельсин, ананас, бергамот",
+      "middle": "озон, амбра, фиалка, жасмин, роза",
+      "base": "мускус, сандал, берёза, уд"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Orto Parisi - Terroni",
+    "gender": "Унисекс",
+    "img": "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/3018cf8c17fe66cd764b546ad38a503702d6ea81/images/catalog/photo_6_2025-12-28_04-44-35.jpg",
+    "notes": {
+      "top": "малина",
+      "middle": "берёза, амбра, бензоин",
+      "base": "гваяк, ветивер, кедр, мускус, пачули, мох, бобы тонка, ваниль"
+    },
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Creed - Aventus Black (Limited Edition)",
+    "gender": "Мужской",
+    "img": "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/3018cf8c17fe66cd764b546ad38a503702d6ea81/images/catalog/photo_8_2025-12-28_04-44-35.jpg",
+    "notes": {
+      "top": "бергамот, чёрная смородина, яблоко, лимон, розовый перец",
+      "middle": "ананас, пачули, марокканский жасмин",
+      "base": "берёза, мускус, дубовый мох, Ambroxan, кедр"
+    },
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+{
+    "name": "KILIAN Paris - Good Girl Gone Bad Extreme",
+    "gender": "Женский",
+    "img": "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/43561a902189e49fa15ebb9d26d2a5e1f6e1df46/images/catalog/photo_1_2026-01-13_13-44-38.jpg",
+    "notes": {
+      "top": "цветок апельсина, роза",
+      "middle": "жасмин, эликсир молочной конфеты toffee",
+      "base": "тубероза, нарцисс"
+    },
+"new": true,
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Clive Christian - Noble Collection XXI Art Deco Amberwood",
+    "gender": "Унисекс",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_2_2026-01-13_13-44-38.jpg?raw=true",
+    "notes": {
+      "top": "розовый перец, шалфей, семена ангелики",
+      "middle": "древесина, амбра",
+      "base": "шалфей, амброкс, киприол, ваниль, мусценон, оррис, уд"
+    },
+"new": true,
+"hit": true,
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Roja Parfums - Elysium Pour Homme",
+    "gender": "Мужской",
+    "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_3_2026-01-13_13-44-38.jpg?raw=true",
+    "notes": {
+      "top": "лимон, бергамот, грейпфрут, лайм, лаванда, тимьян, полынь, мускус",
+      "middle": "ландыш, майская роза, грасский жасмин, яблоко, чёрная смородина",
+      "base": "гальбанум, розовый перец, киприол, ветивер, кедр, ягоды можжевельника, бензоин, ваниль, лабданум, кожа, амбра, мускус"
+    },
+"new": true,
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+ {
+    "name": "Xerjoff - Naxos",
+    "gender": "Унисекс",
+    "img": "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/ae75e8663141594fe38be9b70d20746f5403dd72/images/catalog/5424880918960214390.jpg",
+    "notes": {
+      "top": "цитрусовые, ваниль, мёд",
+      "middle": "белые цветы, корица",
+      "base": "табак, бобы тонка"
+    },
+"new": true,
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "KILIAN - Love Don’t Be Shy",
+    "gender": "Женский",
+    "img": "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/ae75e8663141594fe38be9b70d20746f5403dd72/images/catalog/5424880918960214393.jpg",
+    "notes": {
+      "top": "нероли, жимолость, роза",
+      "middle": "аккорд жимолости, абсолют цветка апельсина, эссенция розы",
+      "base": "маршмеллоу, сахарный аккорд, абсолют ладанника"
+    },
+"new": true,
+"hit": true,
+    "prices": { "7": 550, "15": 1100, "30": 1980, "50": 2750, "100": 4950 },
+priceCategory: 550,
+  },
+  {
+    "name": "Parfums de Marly - Delina Exclusif",
+    "gender": "Женский",
+    "img": "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/ae75e8663141594fe38be9b70d20746f5403dd72/images/catalog/5424880918960214392.jpg",
+    "notes": {
+      "top": "бергамот, груша, личи",
+      "middle": "турецкая роза, ладан, уд",
+      "base": "древесные ноты, амбра, ваниль"
+    },
+"new": true,
+"hit": true,
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Les Liquides Imaginaires - Blanche Bête",
+    "gender": "Унисекс",
+    "img": "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/e75915e320b5d80b0b344e4bff128ff933e914e9/images/catalog/photo_3_2026-01-26_12-15-01.jpg",
+    "notes": {
+      "top": "молоко, амбретта, Mystikal",
+      "middle": "тубероза, жасмин, ладан, Mahonial",
+      "base": "ваниль, мускус, бобы тонка, какао"
+    },
+"new": true,
+"hit": true,
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Kilian - Straight to Heaven White Cristal",
+    "gender": "Унисекс",
+    "img": "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/e75915e320b5d80b0b344e4bff128ff933e914e9/images/catalog/photo_2_2026-01-26_12-15-01.jpg",
+    "notes": {
+      "top": "ром, сухофрукты",
+      "middle": "пачули, мускатный орех, жасмин, гедион",
+      "base": "вирджинский кедр, мускус, амбра, ваниль, гваяк, кожа"
+    },
+"new": true,
+    "prices": { "7": 800, "15": 1500, "30": 2700, "50": 4500, "100": 8000 },
+priceCategory: 800,
+  },
+  {
+    "name": "Antonio Banderas - Blue Seduction",
+    "gender": "Мужской",
+    "img": "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/e75915e320b5d80b0b344e4bff128ff933e914e9/images/catalog/photo_1_2026-01-26_12-15-01.jpg",
+    "notes": {
+      "top": "дыня, бергамот, мята, чёрная смородина",
+      "middle": "морская вода, зелёное яблоко, каппучино, кардамон, мускатный орех",
+      "base": "древесные ноты"
+    },
+"new": true,
+    "prices": { "7": 300, "15": 550, "30": 1100, "50": 1980 }
+  },
+  {
+    name: "Набор Топ-3 • 3 × 15 мл",
+    gender: "Унисекс",
+    img: "https://via.placeholder.com/600x600/f5f0e8/b3873a?text=Набор+Топ-3",
+    notes: {
+      top: "Разнообразные цитрусы и специи",
+      middle: "Цветы и гурманские аккорды",
+      base: "Древесина, амбра, ваниль"
+    },
+    prices: { fixed: 4900 },
+    mlFixed: "45 мл (3×15)",
+    nabory: true,
+    hit: true
+  },
+  {
+    name: "Discovery Set • 5 × 7 мл",
+    gender: "Унисекс",
+    img: "https://via.placeholder.com/600x600/000/fff?text=Discovery+Set",
+    notes: {
+      top: "Разнообразные",
+      middle: "Цветочные и гурманские",
+      base: "Древесные и амбровые"
+    },
+    prices: { fixed: 2490 },
+    mlFixed: "35 мл (5×7)",
+    nabory: true,
+    new: true
+  },
+  {
+    name: "Собрать свой AromaBox",
+    gender: "Унисекс",
+    img: "",
+    notes: {},
+    prices: {},
+    nabory: true,
+    isConstructor: true
+  }
+];
+
+// Генерация slug
+catalog.forEach(item => {
+  if (!item.slug) {
+    let namePart = item.name;
+    if (item.name.includes('—')) namePart = item.name.split('—')[1].trim();
+    item.slug = namePart.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+  }
+});
+
+// ──────────────────────────────────────────────────────────────
+ // ОСНОВНОЙ КОД (твой полностью + исправления)
+// ──────────────────────────────────────────────────────────────
+
+const grid = document.getElementById("catalogGrid");
+const searchInput = document.getElementById("search");
+const favCount = document.getElementById("favCount"); 
+const hitProducts = document.getElementById("hitProducts");
+const newProducts = document.getElementById("newProducts");
+const naboryProducts = document.getElementById("naboryProducts");
+
+const modalBack = document.getElementById("modalBack");
+const modalPhoto = document.getElementById("modalPhoto");
+const modalName = document.getElementById("modalName");
+const modalGender = document.getElementById("modalGender");
+const modalNotes = document.getElementById("modalNotes");
+const mlOptions = document.getElementById("mlOptions");
+const closeModal = document.getElementById("closeModal"); // ← правильное имя!
+const addFavBtn = document.getElementById("addFavBtn");
+const qualityBlock = document.getElementById("qualityBlock");
+const qualityOptions = document.getElementById("qualityOptions");
+const priceBlock = document.getElementById("priceBlock");
+
+let selectedQualityIndex = null;
+const qualityNames = ["Европа", "Франция", "Франция • Премиум"];
+
+const favBack = document.getElementById("favBack");
+const favList = document.getElementById("favList");
+const closeFav = document.getElementById("closeFav");
+const giftBlock = document.getElementById("giftBlock");
+
+const bookBack = document.getElementById("bookBack");
+const closeBooking = document.getElementById("closeBooking");
+const openBooking = document.getElementById("openBooking");
+const sendOrder = document.getElementById("sendOrder");
+const bookName = document.getElementById("bookName");
+const bookPromo = document.getElementById("bookPromo");
+bookPromo.oninput = calculateTotal;
+
+const supportBack = document.getElementById("supportBack");
+const closeSupport = document.getElementById("closeSupport");
+const openTelegram = document.getElementById("openTelegram");
+
+let chosenDelivery = null;
+let selectedML = null;
+let currentItem = null;
+const pageSubtitle = document.getElementById("pageSubtitle");
+
+const navItems = document.querySelectorAll(".bottom-nav .nav-item");
+const pages = {
+  'home': document.getElementById("homePage"),
+  'catalog': document.getElementById("catalogPage")
+};
+const filterSelect = document.getElementById("filterSelect");
+
+const LS_KEY = "babays_favs_v3";
+function readFavs(){try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]")}catch{return[]}}
+function writeFavs(arr){localStorage.setItem(LS_KEY,JSON.stringify(arr));updateFavCount()}
+function updateFavCount(){const favs=readFavs();favCount.style.display=favs.length?"flex":"none";if(favs.length) favCount.textContent=favs.length}
+
+let activeGender="all";
+let searchQuery="";
+
+function createProductCard(item) {
+  const div = document.createElement("div");
+  div.className = "card";
+  let badges = "";
+  if (item.hit) badges += `<div style="position:absolute;top:8px;left:8px;background:var(--accent);color:#fff;padding:2px 8px;border-radius:6px;font-size:11px">ХИТ</div>`;
+  if (item.new) badges += `<div style="position:absolute;top:32px;left:8px;background:var(--dark);color:#fff;padding:2px 8px;border-radius:6px;font-size:11px">NEW</div>`;
+
+  if (item.isConstructor) {
+    div.style.width = "160px";
+    div.style.minWidth = "160px";
+    div.style.height = "220px";
+    div.style.background = "linear-gradient(135deg, var(--accent) 0%, #8b5e0f 100%)";
+    div.style.color = "#fff";
+    div.style.display = "flex";
+    div.style.flexDirection = "column";
+    div.style.alignItems = "center";
+    div.style.justifyContent = "center";
+    div.style.textAlign = "center";
+    div.style.cursor = "pointer";
+    div.style.boxShadow = "0 8px 24px rgba(179,135,58,0.4)";
+    div.innerHTML = `
+      <div style="font-size:48px; margin-bottom:12px;">🎁</div>
+      <div style="font-size:18px; font-weight:700; margin-bottom:8px;">Собрать свой AromaBox</div>
+      <div style="font-size:13px; opacity:0.9; padding:0 12px;">
+        Выбери формат и ароматы под себя
+      </div>
+    `;
+    div.onclick = () => {
+      document.getElementById("aromaBoxBack").style.display = "flex";
+    };
+  } else {
+    div.innerHTML = `<div class="img" style="background-image:url('${item.img}')"></div>${badges}<div class="info"><div class="name">${item.name}</div><div class="meta">${item.gender}</div></div>`;
+    div.onclick = () => openModal(item);
+  }
+  return div;
+}
+
+function renderHomeSections() {
+  hitProducts.innerHTML = ""; catalog.filter(i=>i.hit).forEach(i=>hitProducts.appendChild(createProductCard(i)));
+  newProducts.innerHTML = ""; catalog.filter(i=>i.new).forEach(i=>newProducts.appendChild(createProductCard(i)));
+  naboryProducts.innerHTML = ""; 
+  const constructor = catalog.find(i => i.isConstructor);
+  if (constructor) naboryProducts.appendChild(createProductCard(constructor));
+  catalog.filter(i=>i.nabory && !i.isConstructor).forEach(i=>naboryProducts.appendChild(createProductCard(i)));
+}
+
+function renderCatalog(){
+  grid.innerHTML="";
+  const q = searchQuery.trim().toLowerCase();
+
+  let results = catalog.filter(item=>{
+    if(["Женский","Мужской","Унисекс"].includes(activeGender)&&item.gender!==activeGender) return false;
+    if(activeGender==="hit"&&!item.hit) return false;
+    if(activeGender==="new"&&!item.new) return false;
+    if(activeGender==="nabory"&&!item.nabory) return false;
+    if (q && !item.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  if(!results.length){
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;color:#777;padding:20px">По вашему запросу ничего не найдено.</div>`;
+    return;
+  }
+
+  results.forEach(item=>grid.appendChild(createProductCard(item)));
+}
+
+function openModal(item){
+  currentItem = item;
+  selectedML = null;
+  selectedQualityIndex = null;
+
+  modalPhoto.style.backgroundImage = `url('${item.img}')`;
+  modalName.textContent = item.name;
+  modalGender.textContent = item.gender;
+
+  modalNotes.innerHTML = `
+    <b>Верхние ноты:</b> ${item.notes.top}<br>
+    <b>Средние ноты:</b> ${item.notes.middle}<br>
+    <b>Базовые ноты:</b> ${item.notes.base}
+  `;
+
+  const extraVol = priceBlock.parentNode.querySelector('.extra-vol');
+  if (extraVol) extraVol.remove();
+
+  if (item.nabory === true) {
+    document.getElementById("mlChoice").style.display = "none";
+    qualityBlock.style.display = "none";
+    priceBlock.textContent = `Цена: ${item.prices.fixed} ₽`;
+    priceBlock.style.fontSize = "24px";
+
+    if (item.mlFixed) {
+      const volDiv = document.createElement("div");
+      volDiv.className = "extra-vol";
+      volDiv.style.marginTop = "8px";
+      volDiv.style.color = "#555";
+      volDiv.style.fontSize = "15px";
+      volDiv.textContent = `Объём: ${item.mlFixed}`;
+      priceBlock.parentNode.insertBefore(volDiv, priceBlock.nextSibling);
+    }
+  } else {
+    document.getElementById("mlChoice").style.display = "block";
+    priceBlock.textContent = "Выберите объём";
+    priceBlock.style.fontSize = "20px";
+
+    mlOptions.querySelectorAll(".ml").forEach(btn => {
+      btn.classList.remove("selected");
+
+      btn.onclick = () => {
+        selectedML = btn.textContent;
+        mlOptions.querySelectorAll(".ml").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+
+        qualityOptions.innerHTML = "";
+        qualityBlock.style.display = "none";
+        selectedQualityIndex = null;
+
+        const prices = item.prices[selectedML];
+
+        if (Array.isArray(prices)) {
+          qualityBlock.style.display = "block";
+          priceBlock.textContent = "Выберите качество";
+
+          prices.forEach((price, index) => {
+            const qBtn = document.createElement("button");
+            qBtn.className = "ml";
+            qBtn.textContent = `${qualityNames[index]} — ${price} ₽`;
+
+            qBtn.onclick = () => {
+              selectedQualityIndex = index;
+              qualityOptions.querySelectorAll(".ml").forEach(b => b.classList.remove("selected"));
+              qBtn.classList.add("selected");
+              priceBlock.textContent = `Цена: ${price} ₽`;
+            };
+
+            qualityOptions.appendChild(qBtn);
+          });
+        } else {
+          priceBlock.textContent = `Цена за ${selectedML} мл: ${prices} ₽`;
+        }
+      };
+    });
+  }
+
+  const shareBtnHeader = document.getElementById("shareBtnHeader");
+  const shareUrl = `${window.location.origin}${window.location.pathname}?product=${item.slug}`;
+
+  shareBtnHeader.onclick = () => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      alert(`Ссылка скопирована!\n${shareUrl}`);
+    }).catch(() => {
+      prompt("Не удалось скопировать.\nСкопируй ссылку:", shareUrl);
+    });
+  };
+
+  modalBack.style.display = "flex";
+}
+
+function addToFav(item){
+  let finalPrice, mlText;
+
+  if (item.nabory === true) {
+    finalPrice = item.prices.fixed;
+    mlText = item.mlFixed || "фиксированный";
+  } else {
+    if (!selectedML) {
+      alert("Выберите объём");
+      return;
+    }
+
+    const prices = item.prices[selectedML];
+    let finalPriceTemp;
+
+    if (Array.isArray(prices)) {
+      if (selectedQualityIndex === null) {
+        alert("Выберите качество");
+        return;
+      }
+      finalPriceTemp = prices[selectedQualityIndex];
+    } else {
+      finalPriceTemp = prices;
+    }
+
+    finalPrice = finalPriceTemp;
+    mlText = selectedML;
+  }
+
+  const favs = readFavs();
+
+  favs.push({
+    name: item.name,
+    img: item.img,
+    ml: mlText,
+    price: finalPrice,
+    aromas: item.aromas || []  // Сохраняем состав для AromaBox
+  });
+
+  writeFavs(favs);
+  modalBack.style.display = "none";
+}
+
+function renderFavs(){
+  const favs = readFavs();
+  favList.innerHTML = "";
+
+  giftBlock.style.display = favs.length > 0 ? "block" : "none";
+
+  if (!favs.length) {
+    favList.innerHTML = `<div style="text-align:center; color:#888; padding:20px 0;">Ваша подборка пустая.</div>`;
+    document.getElementById('suggestAromaBox').style.display = "none";
+    document.getElementById('suggestButtons').style.display = "none";
+  } else {
+    favs.forEach((item, i) => {
+      const div = document.createElement("div");
+      div.className = "fav-item";
+      
+      div.innerHTML = `
+        <img src="${item.img}">
+        <div style="flex-grow:1;">
+          <div style="font-weight:600; font-size:15px; color:var(--dark);">${item.name}</div>
+          <div style="font-size:13px;color:#666">
+            ${item.ml} — ${item.price} ₽
+          </div>
+        </div>
+        <button class="fav-remove" data-i="${i}" style="font-size:20px;background:transparent;border:0;color:#c44;font-weight:700;cursor:pointer">✕</button>
+      `;
+
+      favList.appendChild(div);
+    });
+
+    // Предложение создать AromaBox, если ровно 2 аромата (не наборы, и только 7 мл)
+    const aromas = favs.filter(f => !f.name.startsWith('AromaBox') && !f.name.startsWith('Набор') && !f.name.startsWith('Discovery') && f.ml === '7');
+    if (aromas.length === 2) {
+      document.getElementById('suggestAromaBox').style.display = "block";
+      document.getElementById('suggestButtons').style.display = "flex";
+    } else {
+      document.getElementById('suggestAromaBox').style.display = "none";
+      document.getElementById('suggestButtons').style.display = "none";
+    }
+
+    document.querySelectorAll(".fav-remove").forEach(btn=>{
+      btn.onclick=()=>{
+        const favs = readFavs();
+        favs.splice(btn.dataset.i,1);
+        writeFavs(favs);
+        renderFavs();
+        if (bookBack.style.display === "flex") calculateTotal();
+      };
+    });
+  }
+
+  calculateTotal();
+}
+
+document.getElementById('suggestAromaBox').onclick = () => {
+  document.getElementById('suggestAromaBox').style.display = "none";
+  document.getElementById('suggestButtons').style.display = "flex";
+};
+
+document.getElementById('agreeSuggest').onclick = () => {
+  const favs = readFavs();
+  const aromas = favs.filter(f => !f.name.startsWith('AromaBox') && !f.name.startsWith('Набор') && !f.name.startsWith('Discovery') && f.ml === '7');
+  if (aromas.length === 2) {
+    // Предзаполнить конструктор
+    selectedAromas = aromas.map(f => {
+      return catalog.find(c => c.name === f.name);
+    });
+    // Подобрать формат на основе цен
+    const lowCount = aromas.filter(a => a.priceCategory === 550).length;
+    const highCount = aromas.filter(a => a.priceCategory === 800).length;
+    if (lowCount === 3) selectedFormat = 'standard';
+    else if (lowCount === 2 && highCount === 1) selectedFormat = 'mix';
+    else if (lowCount === 1 && highCount === 2) selectedFormat = 'hit';
+    else if (highCount === 3) selectedFormat = 'premium';
+    else selectedFormat = 'mix'; // По умолчанию
+
+    // Очистить корзину от этих ароматов
+    const newFavs = favs.filter(f => f.name.startsWith('AromaBox') || f.name.startsWith('Набор') || f.name.startsWith('Discovery'));
+    writeFavs(newFavs);
+
+    // Открыть конструктор на шаге 2
+    document.getElementById("aromaBoxBack").style.display = "flex";
+    showStep(1);
+    renderSelectedSlots();
+    renderAromaGrid();
+    updateHints();
+    favBack.style.display = "none";
+  }
+};
+
+document.getElementById('disagreeSuggest').onclick = () => {
+  document.getElementById('suggestAromaBox').style.display = "none";
+  document.getElementById('suggestButtons').style.display = "none";
+};
+
+function calculateTotal(){
+  const favs = readFavs();
+
+  let sum = 0;
+  let discountBase = 0;
+
+  favs.forEach(item => {
+    const price = Number(item.price);
+    sum += price;
+
+    if (!item.name.startsWith('AromaBox') && !item.name.startsWith('Набор') && !item.name.startsWith('Discovery')) {
+      discountBase += price;
+    }
+  });
+
+  let discount = 0;
+  const promo = bookPromo.value.trim().toLowerCase();
+
+  if (promo === "staff" || promo === "сотрудник") {
+    discount = Math.round(discountBase * 0.15);
+  } else if (promo === "babays") {
+    discount = Math.round(discountBase * 0.1);
+  }
+
+  const final = sum - discount;
+
+  const sumLine = document.getElementById("sumLine");
+  const discountLine = document.getElementById("discountLine");
+  const finalPrice = document.getElementById("finalPrice");
+
+  if (discount > 0) {
+    sumLine.style.display = "block";
+    discountLine.style.display = "block";
+    sumLine.innerHTML = `Сумма товаров: <b id="sumPrice" style="color:var(--dark)">${sum} ₽</b>`;
+    const txt = promo.includes("staff") || promo === "сотрудник" 
+      ? `Скидка сотрудника 15%: −${discount} ₽` 
+      : `Скидка BABAYS 10%: −${discount} ₽`;
+    discountLine.innerHTML = txt;
+  } else {
+    sumLine.style.display = "none";
+    discountLine.style.display = "none";
+  }
+
+  finalPrice.textContent = `${final} ₽`;
+}
+
+document.querySelectorAll(".deliveryBtn").forEach(btn=>{
+  btn.onclick=()=>{
+    chosenDelivery = btn.dataset.type;
+    document.querySelectorAll(".deliveryBtn").forEach(b=>b.classList.remove("selected"));
+    btn.classList.add("selected");
+  };
+});
+
+sendOrder.onclick = () => {
+  const favs = readFavs();
+  if (!favs.length) return alert("Добавьте товар");
+  if (!bookName.value.trim()) return alert("Введите имя");
+  if (!chosenDelivery) return alert("Выберите доставку");
+
+  const orderId = Math.floor(1000 + Math.random() * 9000);
+
+  const now = new Date();
+  const date = now.toLocaleDateString("ru-RU");
+  const time = now.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+
+  let sum = 0;
+  favs.forEach(item => sum += Number(item.price));
+
+  const promo = bookPromo.value.trim().toLowerCase();
+  let discount = 0;
+  let discountText = "";
+
+  const discountBase = favs.reduce((acc, item) => {
+    if (!item.name.startsWith('AromaBox') && !item.name.startsWith('Набор') && !item.name.startsWith('Discovery')) {
+      acc += Number(item.price);
+    }
+    return acc;
+  }, 0);
+
+  if (promo === "staff" || promo === "сотрудник") {
+    discount = Math.round(discountBase * 0.15);
+    discountText = discount > 0 ? `🎟 Скидка сотрудника 15%: −${discount} ₽\n` : "";
+  } else if (promo === "babays") {
+    discount = Math.round(discountBase * 0.1);
+    discountText = discount > 0 ? `🎟 Скидка (BABAYS): −${discount} ₽\n` : "";
+  }
+
+  const final = sum - discount;
+
+  let orderList = '';
+  favs.forEach((f, i) => {
+    orderList += `${i + 1}. ${f.name} (${f.ml}) — ${f.price} ₽\n`;
+    if (f.name.startsWith('AromaBox') && f.aromas && f.aromas.length > 0) {
+      f.aromas.forEach((aroma, j) => {
+        orderList += `  - ${j + 1}. ${aroma}\n`;
+      });
+    }
+  });
+
+  const giftText = "\n🎁 Подарок ";
+
+  const text = encodeURIComponent(
+` БРОНЬ ЗАКАЗА №${orderId}
+  Babays Perfume  ${date} • ${time}
+
+🛍 Состав заказа:
+${orderList}${giftText}
+
+━━━━━━━━━━━━━━
+💰 Сумма: ${sum} ₽
+${discountText}💳 Предварительная стоимость: ${final} ₽
+━━━━━━━━━━━━━━
+
+👤 Имя: ${bookName.value}
+🚚 Доставка: ${chosenDelivery}`
+  );
+
+  window.location.href = `https://t.me/babaysperfume1?text=${text}`;
+
+  localStorage.removeItem(LS_KEY);
+  updateFavCount();
+  renderFavs(); 
+  bookBack.style.display = "none";
+};
+
+function goToPage(pageId, filterValue = 'all') {
+  Object.values(pages).forEach(p => p.classList.remove("active"));
+  if (pages[pageId]) {
+    pages[pageId].classList.add("active");
+  }
+
+  navItems.forEach(item => {
+      item.classList.remove("active");
+      item.querySelector('svg').style.color = 'var(--muted)';
+  });
+  
+  const activeItem = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+  if (activeItem) {
+    activeItem.classList.add("active");
+    activeItem.querySelector('svg').style.color = 'var(--accent)'; 
+    pageSubtitle.textContent = activeItem.textContent.trim();
+  }
+  
+  if (pageId === 'home') {
+     document.getElementById("homePageContentWrapper").scrollTo(0, 0);
+  } else if (pageId === 'catalog') {
+     pages[pageId].scrollTo(0, 0);
+     scrollToTopBtn.classList.remove("visible");
+  }
+
+  if (pageId === 'catalog') {
+    filterSelect.value = filterValue;
+    activeGender = filterValue;
+    renderCatalog();
+  } else if (pageId === 'home') {
+    renderHomeSections();
+  }
+}
+
+navItems.forEach(item => {
+  item.onclick = () => {
+    const pageId = item.dataset.page;
+    if(pageId === "fav"){
+        renderFavs(); 
+        favBack.style.display="flex";
+    } else if (pageId === "support") {
+        supportBack.style.display="flex";
+    } else if (pageId === "orders") {
+        renderOrders();
+        ordersBack.style.display="flex";
+    } else {
+        goToPage(pageId);
+    }
+  };
+});
+
+document.querySelectorAll('.view-all-btn').forEach(btn => {
+    btn.onclick = (e) => {
+        e.preventDefault();
+        const filterType = btn.dataset.filter;
+        goToPage('catalog', filterType);
+    };
+});
+
+openTelegram.onclick = () => {
+    supportBack.style.display="none"; 
+    window.open("https://t.me/babaysperfume1", '_blank');
+};
+
+searchInput.oninput = e => {searchQuery = e.target.value; renderCatalog();}
+
+filterSelect.onchange = () => {
+  activeGender = filterSelect.value;
+  renderCatalog();
+};
+
+addFavBtn.onclick = () => {
+  if(currentItem){
+    addToFav(currentItem);
+  }
+  modalBack.style.display = "none";
+};
+
+openBooking.onclick=()=>{if(!readFavs().length) return alert("Добавьте товар"); favBack.style.display="none"; bookBack.style.display="flex"; renderFavs(); calculateTotal();}
+
+function makeModalClosable(back,btn){
+  btn.onclick=()=>back.style.display="none";
+  back.onclick=e=>{if(e.target===back) back.style.display="none";}
+}
+makeModalClosable(modalBack,closeModal); // ← исправлено!
+makeModalClosable(favBack,closeFav);
+makeModalClosable(bookBack,closeBooking);
+makeModalClosable(supportBack,closeSupport);
+makeModalClosable(document.getElementById("aromaBoxBack"), document.getElementById("closeAromaBox"));
+makeModalClosable(document.getElementById("ordersBack"), document.getElementById("closeOrders"));
+
+const sliderImages = [
+    "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/4989946337f277889bcb267a96ae34d275dea4e6/images/catalog/photo_2026-01-26_13-12-55.jpg",
+    "https://i.imgur.com/qCpLDJi.jpeg",
+    "https://i.imgur.com/YK9EegY.jpeg",
+];
+
+const homeSlider = document.getElementById('homeSlider');
+const sliderDots = document.getElementById('sliderDots');
+let currentSlide = 0;
+const SLIDE_INTERVAL = 5000;
+let autoplayTimer;
+let isDragging = false;
+let startPos = 0;
+let currentTranslate = 0;
+let prevTranslate = 0;
+
+function renderSlider() {
+    homeSlider.innerHTML = '';
+    sliderDots.innerHTML = '';
+
+    sliderImages.forEach((url, index) => {
+        const slide = document.createElement('div');
+        slide.className = 'slide';
+        slide.style.backgroundImage = `url('${url}')`;
+        homeSlider.appendChild(slide);
+
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        dot.onclick = () => changeSlide(index);
+        sliderDots.appendChild(dot);
+    });
+
+    updateSliderPosition(false);
+}
+
+function updateSliderPosition(animate = true) {
+    if (animate) {
+        homeSlider.style.transition = 'transform 0.5s ease-in-out';
+    } else {
+        homeSlider.style.transition = 'none';
+    }
+    currentTranslate = -currentSlide * 100;
+    homeSlider.style.transform = `translateX(${currentTranslate}%)`;
+    updateDots();
+}
+
+function updateDots() {
+    document.querySelectorAll('.dot').forEach((dot, index) => {
+        dot.classList.remove('active');
+        if (index === currentSlide) {
+            dot.classList.add('active');
+        }
+    });
+}
+
+function changeSlide(index) {
+    if (index >= sliderImages.length) {
+        currentSlide = 0;
+    } else if (index < 0) {
+        currentSlide = sliderImages.length - 1;
+    } else {
+        currentSlide = index;
+    }
+    updateSliderPosition();
+    resetAutoplay();
+}
+
+function startAutoplay() {
+    stopAutoplay();
+    autoplayTimer = setInterval(() => {
+        changeSlide(currentSlide + 1);
+    }, SLIDE_INTERVAL);
+}
+
+function stopAutoplay() {
+    clearInterval(autoplayTimer);
+}
+
+function resetAutoplay() {
+    stopAutoplay();
+    startAutoplay();
+}
+
+function getPositionX(event) {
+    return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+}
+
+function touchStart(event) {
+    isDragging = true;
+    startPos = getPositionX(event);
+    prevTranslate = currentTranslate;
+    homeSlider.style.transition = 'none';
+    stopAutoplay();
+}
+
+function touchMove(event) {
+    if (!isDragging) return;
+    const currentPosition = getPositionX(event);
+    const diff = currentPosition - startPos;
+    currentTranslate = prevTranslate + (diff / homeSlider.offsetWidth) * 100;
+    homeSlider.style.transform = `translateX(${currentTranslate}%)`;
+}
+
+function touchEnd() {
+    isDragging = false;
+    const movedBy = currentTranslate - prevTranslate;
+
+    if (movedBy < -20) {
+        changeSlide(currentSlide + 1);
+    } else if (movedBy > 20) {
+        changeSlide(currentSlide - 1);
+    } else {
+        updateSliderPosition(); 
+    }
+
+    startAutoplay();
+}
+
+homeSlider.addEventListener('touchstart', touchStart);
+homeSlider.addEventListener('touchend', touchEnd);
+homeSlider.addEventListener('touchmove', touchMove);
+
+homeSlider.addEventListener('mousedown', touchStart);
+homeSlider.addEventListener('mouseup', touchEnd);
+homeSlider.addEventListener('mousemove', touchMove);
+homeSlider.addEventListener('mouseleave', () => {
+    if (isDragging) touchEnd();
+});
+
+const catalogPage = document.getElementById("catalogPage");
+const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+
+catalogPage.onscroll = () => {
+    if (catalogPage.scrollTop > 120) {
+        scrollToTopBtn.classList.add("visible");
+    } else {
+        scrollToTopBtn.classList.remove("visible");
+    }
+};
+
+scrollToTopBtn.onclick = () => {
+    catalogPage.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+const urlParams = new URLSearchParams(window.location.search);
+const productSlug = urlParams.get('product');
+
+if (productSlug) {
+  const foundItem = catalog.find(item => item.slug === productSlug || createSlug(item.name) === productSlug);
+  if (foundItem) openModal(foundItem);
+}
+
+function renderOrders() {
+  // Здесь можно реализовать логику отображения истории заказов, если нужно
+  // Пока что заглушка
+  document.getElementById("ordersList").innerHTML = `<div style="text-align:center; color:#888; padding:20px 0;">История заказов пуста.</div>`;
+}
+
+const steps = document.querySelectorAll('.step');
+const progressDots = document.querySelectorAll('.progress-dot');
+let currentStep = 0;
+let selectedFormat = null;
+let selectedAromas = [];
+let boxPrice = 0;
+
+const formats = {
+  standard: { name: 'Стандарт', price: 1490, composition: { 550: 3, 800: 0 } },
+  mix: { name: 'Микс', price: 1790, composition: { 550: 2, 800: 1 } },
+  hit: { name: 'Хит продаж', price: 1990, composition: { 550: 1, 800: 2 } },
+  premium: { name: 'Премиум', price: 2190, composition: { 550: 0, 800: 3 } }
+};
+
+function updateProgress() {
+  progressDots.forEach((dot, index) => {
+    dot.classList.toggle('active', index <= currentStep);
+  });
+}
+
+function showStep(stepIndex) {
+  steps.forEach((step, index) => {
+    step.classList.toggle('active', index === stepIndex);
+  });
+  currentStep = stepIndex;
+  updateProgress();
+}
+
+function updateHints() {
+  if (!selectedFormat) return;
+  const comp = formats[selectedFormat].composition;
+  const lowCount = selectedAromas.filter(a => a.priceCategory === 550).length;
+  const highCount = selectedAromas.filter(a => a.priceCategory === 800).length;
+  const neededLow = comp[550] - lowCount;
+  const neededHigh = comp[800] - highCount;
+  let hintText = '';
+  if (neededLow > 0) hintText += `Выберите ${neededLow} аромат(ов) по 550 ₽. `;
+  if (neededHigh > 0) hintText += `Выберите ${neededHigh} аромат(ов) по 800 ₽.`;
+  document.getElementById('hints').textContent = hintText.trim() || 'Состав готов!';
+  document.getElementById('toStep3').disabled = neededLow > 0 || neededHigh > 0;
+}
+
+function renderSelectedSlots() {
+  const slots = document.getElementById('selectedSlots');
+  slots.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'slot';
+    if (selectedAromas[i]) {
+      slot.style.backgroundImage = `url('${selectedAromas[i].img}')`;
+      slot.classList.add('filled');
+      slot.onclick = () => removeAroma(i);
+    } else {
+      slot.textContent = 'Добавить';
+      slot.onclick = () => {}; // Можно добавить логику
+    }
+    slots.appendChild(slot);
+  }
+}
+
+function renderAromaGrid() {
+  const aromaGrid = document.getElementById('aromaGrid');
+  aromaGrid.innerHTML = '';
+  if (!selectedFormat) return;
+
+  const comp = formats[selectedFormat].composition;
+  const lowCount = selectedAromas.filter(a => a.priceCategory === 550).length;
+  const highCount = selectedAromas.filter(a => a.priceCategory === 800).length;
+  const show550 = lowCount < comp[550];
+  const show800 = highCount < comp[800];
+
+  catalog.filter(item => !item.nabory && !item.isConstructor && item.prices && item.prices[7] &&
+    ((item.priceCategory === 550 && show550) || (item.priceCategory === 800 && show800))
+  ).forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'aroma-card';
+    card.innerHTML = `
+      <img src="${item.img}" alt="${item.name}">
+      <div class="name">${item.name}</div>
+      <div>Цена (7 мл): ${item.prices[7]} ₽</div>
+    `;
+    card.dataset.priceCategory = item.priceCategory;
+    card.onclick = () => addAromaToBox(item);
+    aromaGrid.appendChild(card);
+  });
+}
+
+function addAromaToBox(item) {
+  if (selectedAromas.length >= 3) return alert('Максимум 3 аромата!');
+  const comp = formats[selectedFormat].composition;
+  const category = item.priceCategory;
+  const currentCount = selectedAromas.filter(a => a.priceCategory === category).length;
+  if (currentCount >= comp[category]) return alert(`Максимум ${comp[category]} ароматов по ${category} ₽!`);
+  selectedAromas.push(item);
+  renderSelectedSlots();
+  updateHints();
+  renderAromaGrid(); // Обновляем сетку после добавления
+}
+
+function removeAroma(index) {
+  selectedAromas.splice(index, 1);
+  renderSelectedSlots();
+  updateHints();
+  renderAromaGrid(); // Обновляем сетку после удаления
+}
+
+function renderSummary() {
+  const summaryAromas = document.getElementById('summaryAromas');
+  summaryAromas.innerHTML = '';
+  selectedAromas.forEach(aroma => {
+    const li = document.createElement('li');
+    li.textContent = `${aroma.name} (7 мл, ${aroma.prices[7]} ₽)`;
+    summaryAromas.appendChild(li);
+  });
+  document.getElementById('boxPrice').textContent = formats[selectedFormat].price;
+  // Логика для combinedNotes, если нужно
+  document.getElementById('combinedNotes').textContent = 'Здесь комбинированные ноты';
+}
+
+document.querySelectorAll('.format-card').forEach(card => {
+  card.onclick = () => {
+    document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedFormat = card.dataset.format;
+    document.getElementById('toStep2').disabled = false;
+  };
+});
+
+document.getElementById('toStep2').onclick = () => {
+  showStep(1);
+  renderSelectedSlots();
+  renderAromaGrid();
+  updateHints();
+};
+
+document.getElementById('prevStep').onclick = () => showStep(0);
+
+document.getElementById('toStep3').onclick = () => {
+  showStep(2);
+  renderSummary();
+};
+
+document.getElementById('prevStep2').onclick = () => showStep(1);
+
+document.getElementById('addBoxToFav').onclick = () => {
+  const boxItem = {
+    name: `AromaBox ${formats[selectedFormat].name}`,
+    img: 'https://via.placeholder.com/600x300/f5f0e8/b3873a?text=AromaBox', // Placeholder
+    ml: '21 мл (3×7)',
+    price: formats[selectedFormat].price,
+    nabory: true,
+    aromas: selectedAromas.map(a => a.name)  // Сохраняем состав
+  };
+  addToFav(boxItem);
+  document.getElementById("aromaBoxBack").style.display = "none";
+  // Сброс конструктора
+  selectedFormat = null;
+  selectedAromas = [];
+  showStep(0);
+  document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
+};
+
+// Инициализация
+updateFavCount();
+goToPage('home');
+renderSlider();
+startAutoplay();
+renderHomeSections();
+renderCatalog();
+</script>
+
+</body>
+</html>
