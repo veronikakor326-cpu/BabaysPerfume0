@@ -442,20 +442,6 @@ header.appbar{
 .order-item { background:var(--bg); border-radius:12px; padding:12px; margin-bottom:12px; }
 .order-item .buttons { display:flex; gap:8px; margin-top:8px; }
 .clear-history { width:100%; padding:12px; background:var(--bg); border:1px solid var(--muted); border-radius:10px; cursor:pointer; color:var(--dark); margin-top:16px; }
-
-#step2 .step-buttons {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--card);
-  padding: 10px;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-  z-index: 10;
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;
-}
 </style>
 </head>
 <body>
@@ -561,7 +547,7 @@ header.appbar{
           <div id="priceBlock" style="margin-top:10px;font-size:20px;font-weight:700;color:var(--accent)">
             Выберите объём
           </div>
-          <div style="margin-bottom:8px;color:#888;font-size:13px;margin-top:8px;">Доступный объём:</div>
+          <div style="margin-bottom:8px;color:#666;font-size:13px;margin-top:8px;">Доступный объём:</div>
           <div class="ml-choose" id="mlOptions" style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="ml">7</button>
             <button class="ml">15</button>
@@ -2608,18 +2594,25 @@ sendOrder.onclick = () => {
   const final = sum - discount;
 
   let orderList = '';
-  favs.forEach((f, i) => {
-    orderList += `${i + 1}. ${f.name} (${f.ml}) — ${f.price} ₽\n`;
-    if (f.name.startsWith('AromaBox') && f.aromas && f.aromas.length > 0) {
-      f.aromas.forEach((aroma, j) => {
-        orderList += `  - ${j + 1}. ${aroma}\n`;
-      });
-    }
-  });
+favs.forEach((f, i) => {
+  orderList += `${i + 1}. ${f.name} (${f.ml}) — ${f.price} ₽\n`;
+  if (f.name.startsWith('AromaBox') && f.aromas && f.aromas.length > 0) {
+    f.aromas.forEach((aroma, j) => {
+      orderList += `  - ${j + 1}. ${aroma}\n`;
+    });
+  }
+});
 
-  const giftText = "\n🎁 Подарок ";
+const giftText = "\n🎁 Подарок ";
 
-  const text = encodeURIComponent(
+let priceText = '';
+if (discount > 0) {
+  priceText = `💰 Сумма: ${sum} ₽\n${discountText}💳 Предварительная стоимость: ${final} ₽`;
+} else {
+  priceText = `💳 Предварительная стоимость: ${final} ₽`;
+}
+
+const text = encodeURIComponent(
 ` БРОНЬ ЗАКАЗА №${orderId}
   Babays Perfume  ${date} • ${time}
 
@@ -2627,13 +2620,12 @@ sendOrder.onclick = () => {
 ${orderList}${giftText}
 
 ━━━━━━━━━━━━━━
-💰 Сумма: ${sum} ₽
-${discountText}💳 Предварительная стоимость: ${final} ₽
+${priceText}
 ━━━━━━━━━━━━━━
 
 👤 Имя: ${bookName.value}
 🚚 Доставка: ${chosenDelivery}`
-  );
+);
 
   window.location.href = `https://t.me/babaysperfume1?text=${text}`;
 
@@ -3040,8 +3032,8 @@ document.getElementById('addBoxToFav').onclick = () => {
   const boxItem = {
     name: `AromaBox ${formats[selectedFormat].name}`,
     img: 'https://via.placeholder.com/600x300/f5f0e8/b3873a?text=AromaBox', // Placeholder
-    ml: '21 мл (3×7)',
-    price: formats[selectedFormat].price,
+    prices: { fixed: formats[selectedFormat].price },
+    mlFixed: '21 мл (3×7)',
     nabory: true,
     aromas: selectedAromas.map(a => a.name)  // Сохраняем состав
   };
