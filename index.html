@@ -54,7 +54,7 @@ header.appbar{
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(150px,1fr));
+  grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); /* Адаптация под телефон */
   gap:12px;
 }
 
@@ -66,7 +66,7 @@ header.appbar{
   cursor:pointer;
   box-shadow:0 8px 16px rgba(0,0,0,0.04);
   transition:transform 0.2s, box-shadow 0.2s;
-  min-width:150px;
+  min-width:140px;
 }
 .card:hover{
   transform:translateY(-2px);
@@ -83,7 +83,8 @@ header.appbar{
 
 .card .info{
   padding:12px 8px;
-  text-align:left; /* ← Текст слева */
+  text-align:left; /* Текст слева */
+  padding-left:0; /* Дополнительный сдвиг */
 }
 
 .card .name{
@@ -111,11 +112,17 @@ header.appbar{
   flex-direction:column;
 }
 
-.modal-body{
-  padding:12px;
-  overflow-y:auto;
-  flex:1;
+.modal-photo{
+  width:46%;
+  min-height:300px;
+  background-size:contain; /* Не растягивает картинку */
+  background-repeat:no-repeat;
+  background-color:var(--bg);
+  background-position:center;
+  position:relative;
 }
+
+.modal-body{padding:12px; flex:1; overflow-y:auto;}
 
 .ml{padding:8px 12px;border-radius:8px;border:1px solid var(--muted);background:var(--bg);cursor:pointer;margin-right:6px;margin-bottom:6px;font-size:14px}
 .ml.selected{background:var(--accent);color:#fff;border-color:var(--accent);}
@@ -390,7 +397,8 @@ header.appbar{
     }
     .modal-photo {
         width: 100%; 
-        min-height: 200px; 
+        min-height: 200px;
+        background-size: contain;
     }
     .deliveryBtn, button {
         font-size: 14px;
@@ -404,6 +412,26 @@ header.appbar{
         padding: 8px;
         font-size: 14px;
     }
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+}
+
+/* Фиксация кнопок в шаге 2 конструктора */
+#step2 .step-buttons {
+  position: sticky;
+  bottom: 0;
+  background: var(--card);
+  padding: 12px 0;
+  border-top: 1px solid #eee;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Отступ внизу шага 3, чтобы не обрезалось */
+#step3 {
+  padding-bottom: 80px;
 }
 
 /* ── Стили для конструктора AromaBox и заказов ── */
@@ -721,13 +749,13 @@ header.appbar{
       <div class="selected-slots" id="selectedSlots"></div>
       <div id="hints" style="color:#666;font-size:14px;margin:16px 0;"></div>
       <div class="aroma-grid" id="aromaGrid"></div>
-      <div class="step-buttons">
+      <div class="step-buttons" style="position:sticky; bottom:0; background:var(--card); padding:12px 0; border-top:1px solid #eee; z-index:10; display:flex; justify-content:space-between;">
         <button id="prevStep" style="flex:1;padding:12px;background:var(--bg);border:1px solid var(--muted);border-radius:10px;cursor:pointer">Назад</button>
         <button id="toStep3" style="flex:1;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;cursor:pointer;margin-left:10px" disabled>Подтвердить</button>
       </div>
     </div>
 
-    <div class="step" id="step3">
+    <div class="step" id="step3" style="padding-bottom:80px;">
       <h4 style="text-align:center;margin-bottom:16px">Ваш AromaBox</h4>
       <div class="box-img" style="background-image:url('https://via.placeholder.com/600x300/f5f0e8/b3873a?text=AromaBox')"></div>
       <ul id="summaryAromas" style="list-style:none;padding:0;margin:0 0 16px 0;"></ul>
@@ -820,9 +848,7 @@ header.appbar{
 </button>
 
 <script>
-// ──────────────────────────────────────────────────────────────
-// МАССИВ ТОВАРОВ (полный, добавь если нужно)
-// ──────────────────────────────────────────────────────────────
+// МАССИВ ТОВАРОВ (твой полный массив, я оставил пример, вставь все)
 const catalog = [
   {
     id: "Parfums de Marly - Layton",
@@ -2187,10 +2213,7 @@ catalog.forEach(item => {
   }
 });
 
-// ──────────────────────────────────────────────────────────────
-// ОСНОВНОЙ КОД (с исправлениями)
-// ──────────────────────────────────────────────────────────────
-
+// ОСНОВНОЙ КОД (твой, с исправлениями)
 const grid = document.getElementById("catalogGrid");
 const searchInput = document.getElementById("search");
 const favCount = document.getElementById("favCount"); 
@@ -2243,14 +2266,9 @@ const pages = {
 const filterSelect = document.getElementById("filterSelect");
 
 const LS_KEY = "babays_favs_v3";
-const ORDERS_KEY = "babays_orders_v1";
-
 function readFavs(){try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]")}catch{return[]}}
 function writeFavs(arr){localStorage.setItem(LS_KEY,JSON.stringify(arr));updateFavCount()}
 function updateFavCount(){const favs=readFavs();favCount.style.display=favs.length?"flex":"none";if(favs.length) favCount.textContent=favs.length}
-
-function readOrders(){try{return JSON.parse(localStorage.getItem(ORDERS_KEY)||"[]")}catch{return[]}}
-function writeOrders(arr){localStorage.setItem(ORDERS_KEY,JSON.stringify(arr))}
 
 let activeGender="all";
 let searchQuery="";
@@ -2485,7 +2503,6 @@ function renderFavs(){
       favList.appendChild(div);
     });
 
-    // Предложение создать AromaBox, если ровно 2 аромата (не наборы, и только 7 мл)
     const aromas = favs.filter(f => !f.name.startsWith('AromaBox') && !f.name.startsWith('Набор') && !f.name.startsWith('Discovery') && f.ml === '7');
     if (aromas.length === 2) {
       document.getElementById('suggestAromaBox').style.display = "block";
@@ -2518,24 +2535,20 @@ document.getElementById('agreeSuggest').onclick = () => {
   const favs = readFavs();
   const aromas = favs.filter(f => !f.name.startsWith('AromaBox') && !f.name.startsWith('Набор') && !f.name.startsWith('Discovery') && f.ml === '7');
   if (aromas.length === 2) {
-    // Предзаполнить конструктор
     selectedAromas = aromas.map(f => {
       return catalog.find(c => c.name === f.name);
     });
-    // Подобрать формат на основе цен
     const lowCount = aromas.filter(a => a.priceCategory === 550).length;
     const highCount = aromas.filter(a => a.priceCategory === 800).length;
     if (lowCount === 3) selectedFormat = 'standard';
     else if (lowCount === 2 && highCount === 1) selectedFormat = 'mix';
     else if (lowCount === 1 && highCount === 2) selectedFormat = 'hit';
     else if (highCount === 3) selectedFormat = 'premium';
-    else selectedFormat = 'mix'; // По умолчанию
+    else selectedFormat = 'mix';
 
-    // Очистить корзину от этих ароматов
     const newFavs = favs.filter(f => f.name.startsWith('AromaBox') || f.name.startsWith('Набор') || f.name.startsWith('Discovery'));
     writeFavs(newFavs);
 
-    // Открыть конструктор на шаге 2
     document.getElementById("aromaBoxBack").style.display = "flex";
     showStep(1);
     renderSelectedSlots();
@@ -2652,6 +2665,12 @@ sendOrder.onclick = () => {
 
   const giftText = "\n🎁 Подарок ";
 
+  let priceText = `💳 Предварительная стоимость: ${final} ₽`;
+
+  if (discount > 0) {
+    priceText = `💰 Сумма: ${sum} ₽\n${discountText}\n${priceText}`;
+  }
+
   const text = encodeURIComponent(
 ` БРОНЬ ЗАКАЗА №${orderId}
   Babays Perfume  ${date} • ${time}
@@ -2660,8 +2679,7 @@ sendOrder.onclick = () => {
 ${orderList}${giftText}
 
 ━━━━━━━━━━━━━━
-💰 Сумма: ${sum} ₽
-${discountText}💳 Предварительная стоимость: ${final} ₽
+${priceText}
 ━━━━━━━━━━━━━━
 
 👤 Имя: ${bookName.value}
@@ -2669,21 +2687,6 @@ ${discountText}💳 Предварительная стоимость: ${final} 
   );
 
   window.location.href = `https://t.me/babaysperfume1?text=${text}`;
-
-  // Сохраняем заказ в историю
-  const orders = readOrders();
-  orders.push({
-    orderId,
-    date,
-    time,
-    name: bookName.value,
-    delivery: chosenDelivery,
-    items: favs,
-    sum,
-    discount,
-    final
-  });
-  writeOrders(orders);
 
   localStorage.removeItem(LS_KEY);
   updateFavCount();
@@ -2781,7 +2784,6 @@ makeModalClosable(bookBack,closeBooking);
 makeModalClosable(supportBack,closeSupport);
 makeModalClosable(document.getElementById("aromaBoxBack"), document.getElementById("closeAromaBox"));
 makeModalClosable(document.getElementById("ordersBack"), document.getElementById("closeOrders"));
-makeModalClosable(document.getElementById("orderDetailsBack"), document.getElementById("closeOrderDetails"));
 
 const sliderImages = [
     "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/4989946337f277889bcb267a96ae34d275dea4e6/images/catalog/photo_2026-01-26_13-12-55.jpg",
@@ -2935,10 +2937,6 @@ if (productSlug) {
   if (foundItem) openModal(foundItem);
 }
 
-// ──────────────────────────────────────────────────────────────
-// ФУНКЦИИ ДЛЯ ЗАКАЗОВ
-// ──────────────────────────────────────────────────────────────
-
 function renderOrders() {
   const orders = readOrders().reverse();
   const ordersList = document.getElementById("ordersList");
@@ -3010,10 +3008,6 @@ document.getElementById('clearHistory').onclick = () => {
     renderOrders();
   }
 };
-
-// ──────────────────────────────────────────────────────────────
-// КОНСТРУКТОР AROMA BOX
-// ──────────────────────────────────────────────────────────────
 
 const steps = document.querySelectorAll('.step');
 const progressDots = document.querySelectorAll('.progress-dot');
