@@ -14,7 +14,7 @@
   --dark:#2c2c2c;
   --radius:14px;
 }
-*{box-sizing:border-box}
+* {box-sizing:border-box}
 body{
   margin:0;
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto;
@@ -423,12 +423,33 @@ header.appbar{
 .selected-slots { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
 
 .slot {
+  position: relative;
   width:80px; height:80px; border:2px dashed var(--muted); border-radius:8px;
   display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--muted);
   cursor:pointer; transition:all .2s; background-size:cover; background-position:center;
 }
 .slot.filled { border:2px solid var(--accent); animation:addToBox .5s ease; }
 @keyframes addToBox { 0% { transform:scale(0.7); opacity:0; } 100% { transform:scale(1); opacity:1; } }
+
+.slot .remove-slot {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  z-index: 10;
+}
 
 .hints { color:#666; font-size:14px; margin-bottom:16px; }
 
@@ -547,7 +568,7 @@ header.appbar{
           <div id="priceBlock" style="margin-top:10px;font-size:20px;font-weight:700;color:var(--accent)">
             Выберите объём
           </div>
-          <div style="margin-bottom:8px;color:#666;font-size:13px;margin-top:8px;">Доступный объём:</div>
+          <div style="margin-bottom:8px;color:#888;font-size:13px;margin-top:8px;">Доступный объём:</div>
           <div class="ml-choose" id="mlOptions" style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="ml">7</button>
             <button class="ml">15</button>
@@ -960,10 +981,10 @@ priceCategory: 550,
       "30": [1980, 3700, 4500],
       "50": [2750, 6100, 8000],
       "100": [4950, 10500, 15000],
+},
 priceCategory: 550,
-    }
-  },
-  {
+},
+{
     "name": "Attar Collection - Hayati",
     "gender": "Унисекс",
     "img": "https://github.com/veronikakor326-cpu/BabaysPerfume/blob/main/images/catalog/photo_15_2025-12-21_16-23-35.jpg?raw=true",
@@ -997,7 +1018,8 @@ priceCategory: 800,
       "base": "кожа, akigalawood, амбра, ваниль, лабданум"
     },
 "hit":true,
-    "prices": { "7": 1300, "15": 2500, "30": 4500, "50": 8000, "100": 15000 }
+    "prices": { "7": 1300, "15": 2500, "30": 4500, "50": 8000, "100": 15000 },
+priceCategory: 800,
   },
   {
     "name": "Maison Francis Kurkdjian - Baccarat Rouge 540",
@@ -1153,7 +1175,8 @@ priceCategory: 550,
       "base": "ambroxan, мускус, ветивер, пачули"
     },
 "hit":true,
-    "prices": { "7": 1300, "15": 2500, "30": 4500, "50": 8000, "100": 15000 }
+    "prices": { "7": 1300, "15": 2500, "30": 4500, "50": 8000, "100": 15000 },
+priceCategory: 800,
   },
   {
     "name": "Dior - Sauvage",
@@ -1445,7 +1468,8 @@ priceCategory: 550,
       "middle": "табак, шафран",
       "base": "сандал, гедион"
     },
-    "prices": { "7": 700, "15": 1300, "30": 2500, "50": 4500, "100": 8000 }
+    "prices": { "7": 700, "15": 1300, "30": 2500, "50": 4500, "100": 8000 },
+priceCategory: 800,
   },
   {
     "name": "Tom Ford - Cherry Smoke",
@@ -1461,10 +1485,9 @@ priceCategory: 550,
       "15": [1100, 1300],
       "30": [1980, 2500],
       "50": [2750, 4500],
-      "100": [4950, 8000],
+      "100": [4950, 8000]},
 priceCategory: 550,
-    }
-  },
+    },
   {
     "name": "Richard - White Chocola",
     "gender": "Унисекс",
@@ -1479,10 +1502,9 @@ priceCategory: 550,
       "15": [1100, 1400],
       "30": [1980, 2500],
       "50": [2750, 4500],
-      "100": [4950, 8000],
+      "100": [4950, 8000]},
 priceCategory: 550,
-    }
-  },
+    },
   {
     "name": "Arabian Oud - Madawi Gold Edition",
     "gender": "Унисекс",
@@ -2095,7 +2117,8 @@ priceCategory: 800,
       "base": "древесные ноты"
     },
 "new": true,
-    "prices": { "7": 300, "15": 550, "30": 1100, "50": 1980 }
+    "prices": { "7": 300, "15": 550, "30": 1100, "50": 1980 },
+priceCategory: 550,
   },
   {
     name: "Набор Топ-3 • 3 × 15 мл",
@@ -2936,6 +2959,14 @@ function renderSelectedSlots() {
       slot.style.backgroundImage = `url('${selectedAromas[i].img}')`;
       slot.classList.add('filled');
       slot.onclick = () => removeAroma(i);
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-slot';
+      removeBtn.textContent = '✕';
+      removeBtn.onclick = (e) => {
+        e.stopPropagation();
+        removeAroma(i);
+      };
+      slot.appendChild(removeBtn);
     } else {
       slot.textContent = 'Добавить';
       slot.onclick = () => {}; // Можно добавить логику
@@ -2963,7 +2994,6 @@ function renderAromaGrid() {
     card.innerHTML = `
       <img src="${item.img}" alt="${item.name}">
       <div class="name">${item.name}</div>
-      <div>Цена (7 мл): ${item.prices[7]} ₽</div>
     `;
     card.dataset.priceCategory = item.priceCategory;
     card.onclick = () => addAromaToBox(item);
