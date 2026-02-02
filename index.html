@@ -83,7 +83,7 @@ header.appbar{
 
 .card .info{
   padding:12px 8px;
-  text-align:center;
+  text-align:left; /* ← Текст слева */
 }
 
 .card .name{
@@ -100,25 +100,22 @@ header.appbar{
 
 .modal-back{
   position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;
-  justify-content:center;align-items:center;padding:20px;z-index:40;
+  justify-content:center;align-items:center;padding:10px;z-index:40;
 }
 .modal{
   background:var(--card);border-radius:18px;
   overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.3);
   width:100%;max-width:760px;
+  max-height:85vh;
+  display:flex;
+  flex-direction:column;
 }
 
-.modal-photo{
-  width:46%;
-  min-height:380px; 
-  background-size:contain; 
-  background-repeat:no-repeat; 
-  background-color:var(--bg); 
-  background-position:center;
-  position:relative;
+.modal-body{
+  padding:12px;
+  overflow-y:auto;
+  flex:1;
 }
-
-.modal-body{padding:20px}
 
 .ml{padding:8px 12px;border-radius:8px;border:1px solid var(--muted);background:var(--bg);cursor:pointer;margin-right:6px;margin-bottom:6px;font-size:14px}
 .ml.selected{background:var(--accent);color:#fff;border-color:var(--accent);}
@@ -378,27 +375,34 @@ header.appbar{
 }
 
 @media screen and (max-width: 600px) {
-    .modal-photo {
-        width: 100%; 
-        min-height: 250px; 
-    }
-
-    .modal #modalCard > div {
-        flex-direction: column; 
-    }
-
-    .modal-back {
-        padding: 0;
-        align-items: flex-end;
-    }
-    
     .modal {
         max-width: 100%;
         width: 100%;
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
-        max-height: 90vh; 
+        max-height: 85vh;
+        padding: 10px;
+    }
+    .modal-body {
+        padding: 12px;
         overflow-y: auto;
+        max-height: 60vh;
+    }
+    .modal-photo {
+        width: 100%; 
+        min-height: 200px; 
+    }
+    .deliveryBtn, button {
+        font-size: 14px;
+        padding: 10px;
+    }
+    .fav-item img {
+        width: 50px;
+        height: 50px;
+    }
+    .fav-item {
+        padding: 8px;
+        font-size: 14px;
     }
 }
 
@@ -750,6 +754,21 @@ header.appbar{
       <button id="closeOrders" style="background:var(--bg);border:0;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700;color:var(--dark)">✕</button>
     </div>
     <div id="ordersList" style="padding:16px"></div>
+    <button id="clearHistory" class="clear-history" style="margin-top:16px;">Очистить историю</button>
+  </div>
+</div>
+
+<!-- Модальное окно деталей заказа -->
+<div class="modal-back" id="orderDetailsBack">
+  <div class="modal" id="orderDetailsModal">
+    <div style="padding:14px 16px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:700;font-size:18px;font-family:'Playfair Display'">Детали заказа №<span id="orderDetailsId"></span></div>
+      <button id="closeOrderDetails" style="background:var(--bg);border:0;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700;color:var(--dark)">✕</button>
+    </div>
+    <div id="orderDetailsContent" style="padding:12px;max-height:50vh;overflow-y:auto;"></div>
+    <div style="padding:16px">
+      <button id="addAllToFav" style="width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;cursor:pointer">Добавить все в корзину</button>
+    </div>
   </div>
 </div>
 
@@ -802,7 +821,7 @@ header.appbar{
 
 <script>
 // ──────────────────────────────────────────────────────────────
-// МАССИВ ТОВАРОВ (примеры + наборы)
+// МАССИВ ТОВАРОВ (полный, добавь если нужно)
 // ──────────────────────────────────────────────────────────────
 const catalog = [
   {
@@ -2167,8 +2186,9 @@ catalog.forEach(item => {
     item.slug = namePart.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
   }
 });
+
 // ──────────────────────────────────────────────────────────────
- // ОСНОВНОЙ КОД (твой полностью + исправления)
+// ОСНОВНОЙ КОД (с исправлениями)
 // ──────────────────────────────────────────────────────────────
 
 const grid = document.getElementById("catalogGrid");
@@ -2184,7 +2204,7 @@ const modalName = document.getElementById("modalName");
 const modalGender = document.getElementById("modalGender");
 const modalNotes = document.getElementById("modalNotes");
 const mlOptions = document.getElementById("mlOptions");
-const closeModal = document.getElementById("closeModal"); // ← правильное имя!
+const closeModal = document.getElementById("closeModal");
 const addFavBtn = document.getElementById("addFavBtn");
 const qualityBlock = document.getElementById("qualityBlock");
 const qualityOptions = document.getElementById("qualityOptions");
@@ -2223,9 +2243,14 @@ const pages = {
 const filterSelect = document.getElementById("filterSelect");
 
 const LS_KEY = "babays_favs_v3";
+const ORDERS_KEY = "babays_orders_v1";
+
 function readFavs(){try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]")}catch{return[]}}
 function writeFavs(arr){localStorage.setItem(LS_KEY,JSON.stringify(arr));updateFavCount()}
 function updateFavCount(){const favs=readFavs();favCount.style.display=favs.length?"flex":"none";if(favs.length) favCount.textContent=favs.length}
+
+function readOrders(){try{return JSON.parse(localStorage.getItem(ORDERS_KEY)||"[]")}catch{return[]}}
+function writeOrders(arr){localStorage.setItem(ORDERS_KEY,JSON.stringify(arr))}
 
 let activeGender="all";
 let searchQuery="";
@@ -2645,6 +2670,21 @@ ${discountText}💳 Предварительная стоимость: ${final} 
 
   window.location.href = `https://t.me/babaysperfume1?text=${text}`;
 
+  // Сохраняем заказ в историю
+  const orders = readOrders();
+  orders.push({
+    orderId,
+    date,
+    time,
+    name: bookName.value,
+    delivery: chosenDelivery,
+    items: favs,
+    sum,
+    discount,
+    final
+  });
+  writeOrders(orders);
+
   localStorage.removeItem(LS_KEY);
   updateFavCount();
   renderFavs(); 
@@ -2735,12 +2775,13 @@ function makeModalClosable(back,btn){
   btn.onclick=()=>back.style.display="none";
   back.onclick=e=>{if(e.target===back) back.style.display="none";}
 }
-makeModalClosable(modalBack,closeModal); // ← исправлено!
+makeModalClosable(modalBack,closeModal);
 makeModalClosable(favBack,closeFav);
 makeModalClosable(bookBack,closeBooking);
 makeModalClosable(supportBack,closeSupport);
 makeModalClosable(document.getElementById("aromaBoxBack"), document.getElementById("closeAromaBox"));
 makeModalClosable(document.getElementById("ordersBack"), document.getElementById("closeOrders"));
+makeModalClosable(document.getElementById("orderDetailsBack"), document.getElementById("closeOrderDetails"));
 
 const sliderImages = [
     "https://raw.githubusercontent.com/veronikakor326-cpu/BabaysPerfume/4989946337f277889bcb267a96ae34d275dea4e6/images/catalog/photo_2026-01-26_13-12-55.jpg",
@@ -2890,15 +2931,89 @@ const urlParams = new URLSearchParams(window.location.search);
 const productSlug = urlParams.get('product');
 
 if (productSlug) {
-  const foundItem = catalog.find(item => item.slug === productSlug || createSlug(item.name) === productSlug);
+  const foundItem = catalog.find(item => item.slug === productSlug);
   if (foundItem) openModal(foundItem);
 }
 
+// ──────────────────────────────────────────────────────────────
+// ФУНКЦИИ ДЛЯ ЗАКАЗОВ
+// ──────────────────────────────────────────────────────────────
+
 function renderOrders() {
-  // Здесь можно реализовать логику отображения истории заказов, если нужно
-  // Пока что заглушка
-  document.getElementById("ordersList").innerHTML = `<div style="text-align:center; color:#888; padding:20px 0;">История заказов пуста.</div>`;
+  const orders = readOrders().reverse();
+  const ordersList = document.getElementById("ordersList");
+  ordersList.innerHTML = "";
+
+  if (!orders.length) {
+    ordersList.innerHTML = `<div style="text-align:center; color:#888; padding:20px 0;">История заказов пуста.</div>`;
+  } else {
+    orders.forEach((order, index) => {
+      const div = document.createElement("div");
+      div.className = "order-item";
+      div.innerHTML = `
+        <div style="font-weight:600; font-size:15px; color:var(--dark);">Заказ №${order.orderId}</div>
+        <div style="font-size:13px;color:#666">${order.date} • ${order.time}</div>
+        <div class="buttons">
+          <button class="view-order" data-index="${index}" style="flex:1;padding:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;">Просмотреть</button>
+        </div>
+      `;
+      ordersList.appendChild(div);
+    });
+
+    document.querySelectorAll(".view-order").forEach(btn => {
+      btn.onclick = () => {
+        const order = orders[btn.dataset.index];
+        renderOrderDetails(order);
+        document.getElementById("orderDetailsBack").style.display = "flex";
+      };
+    });
+  }
 }
+
+function renderOrderDetails(order) {
+  document.getElementById("orderDetailsId").textContent = order.orderId;
+  const content = document.getElementById("orderDetailsContent");
+  content.innerHTML = '';
+
+  order.items.forEach((item, i) => {
+    const div = document.createElement("div");
+    div.className = "fav-item";
+    div.innerHTML = `
+      <img src="${item.img}">
+      <div style="flex-grow:1;">
+        <div style="font-weight:600; font-size:15px; color:var(--dark);">${item.name}</div>
+        <div style="font-size:13px;color:#666">
+          ${item.ml} — ${item.price} ₽
+        </div>
+      </div>
+      <button class="add-to-fav" data-i="${i}" style="padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;">Добавить</button>
+    `;
+    content.appendChild(div);
+  });
+
+  document.getElementById("addAllToFav").onclick = () => {
+    order.items.forEach(item => addToFav({...item, nabory: false}));
+    document.getElementById("orderDetailsBack").style.display = "none";
+  };
+
+  document.querySelectorAll(".add-to-fav").forEach(btn => {
+    btn.onclick = () => {
+      const item = order.items[btn.dataset.i];
+      addToFav({...item, nabory: false});
+    };
+  });
+}
+
+document.getElementById('clearHistory').onclick = () => {
+  if (confirm("Очистить историю заказов?")) {
+    localStorage.removeItem(ORDERS_KEY);
+    renderOrders();
+  }
+};
+
+// ──────────────────────────────────────────────────────────────
+// КОНСТРУКТОР AROMA BOX
+// ──────────────────────────────────────────────────────────────
 
 const steps = document.querySelectorAll('.step');
 const progressDots = document.querySelectorAll('.progress-dot');
@@ -3003,14 +3118,14 @@ function addAromaToBox(item) {
   selectedAromas.push(item);
   renderSelectedSlots();
   updateHints();
-  renderAromaGrid(); // Обновляем сетку после добавления
+  renderAromaGrid();
 }
 
 function removeAroma(index) {
   selectedAromas.splice(index, 1);
   renderSelectedSlots();
   updateHints();
-  renderAromaGrid(); // Обновляем сетку после удаления
+  renderAromaGrid();
 }
 
 function renderSummary() {
@@ -3022,7 +3137,6 @@ function renderSummary() {
     summaryAromas.appendChild(li);
   });
   document.getElementById('boxPrice').textContent = formats[selectedFormat].price;
-  // Логика для combinedNotes, если нужно
   document.getElementById('combinedNotes').textContent = 'Здесь комбинированные ноты';
 }
 
@@ -3054,15 +3168,14 @@ document.getElementById('prevStep2').onclick = () => showStep(1);
 document.getElementById('addBoxToFav').onclick = () => {
   const boxItem = {
     name: `AromaBox ${formats[selectedFormat].name}`,
-    img: 'https://via.placeholder.com/600x300/f5f0e8/b3873a?text=AromaBox', // Placeholder
+    img: 'https://via.placeholder.com/600x300/f5f0e8/b3873a?text=AromaBox',
     prices: { fixed: formats[selectedFormat].price },
     mlFixed: '21 мл (3×7)',
     nabory: true,
-    aromas: selectedAromas.map(a => a.name)  // Сохраняем состав
+    aromas: selectedAromas.map(a => a.name)
   };
   addToFav(boxItem);
   document.getElementById("aromaBoxBack").style.display = "none";
-  // Сброс конструктора
   selectedFormat = null;
   selectedAromas = [];
   showStep(0);
