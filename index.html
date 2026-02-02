@@ -3011,15 +3011,15 @@ navItems.forEach(item => {
     const pageId = item.dataset.page;
 
     if(pageId === "fav"){
-        renderFavs(); 
-        favBack.style.display="flex";
+      renderFavs(); 
+      favBack.style.display="flex";
     } else if (pageId === "support") {
-        supportBack.style.display="flex";
+      supportBack.style.display="flex";
     } else if (pageId === "orders") {
-        renderOrders();
-        document.getElementById("ordersBack").style.display = "flex";
+      renderOrders();
+      document.getElementById("ordersBack").style.display = "flex";
     } else {
-        goToPage(pageId);
+      goToPage(pageId);
     }
   };
 });
