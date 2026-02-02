@@ -2076,10 +2076,28 @@ const pages = {
 const filterSelect = document.getElementById("filterSelect");
 
 const LS_KEY = "babays_favs_v3";
-function readFavs(){try{return JSON.parse(localStorage.getItem(LS_KEY)||"[]")}catch{return[]}}
-function writeFavs(arr){localStorage.setItem(LS_KEY,JSON.stringify(arr));updateFavCount()}
-function updateFavCount(){const favs=readFavs();favCount.style.display=favs.length?"flex":"none";if(favs.length) favCount.textContent=favs.length}
+const ORDERS_KEY = "babays_orders";
 
+function readFavs() { try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]") } catch { return [] } }
+function writeFavs(arr) { localStorage.setItem(LS_KEY, JSON.stringify(arr)); updateFavCount() }
+function updateFavCount() {
+  const favs = readFavs();
+  favCount.style.display = favs.length ? "flex" : "none";
+  if (favCount.style.display === "flex") favCount.textContent = favs.length;
+}
+
+function readOrders() {
+  try {
+    return JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
+  } catch (e) {
+    console.error("Ошибка чтения заказов:", e);
+    return [];
+  }
+}
+
+function writeOrders(orders) {
+  localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+}
 let activeGender="all";
 let searchQuery="";
 
@@ -2434,7 +2452,6 @@ sendOrder.onclick = () => {
   if (!chosenDelivery) return alert("Выберите доставку");
 
   const orderId = Math.floor(1000 + Math.random() * 9000);
-
   const now = new Date();
   const date = now.toLocaleDateString("ru-RU");
   const time = now.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
@@ -2496,12 +2513,38 @@ ${priceText}
 🚚 Доставка: ${chosenDelivery}`
   );
 
+  // === НОВОЕ: СОХРАНЕНИЕ ЗАКАЗА ===
+  const order = {
+    orderId: orderId,
+    date: date,
+    time: time,
+    items: favs.map(item => ({
+      name: item.name,
+      img: item.img,
+      ml: item.ml,
+      price: item.price,
+      aromas: item.aromas || []
+    })),
+    total: sum,
+    discount: discount,
+    final: final,
+    name: bookName.value.trim(),
+    delivery: chosenDelivery,
+    promo: promo || null
+  };
+
+  let orders = readOrders();
+  orders.push(order);
+  writeOrders(orders);
+  // === КОНЕЦ НОВОГО ===
+
   window.location.href = `https://t.me/babaysperfume1?text=${text}`;
 
   localStorage.removeItem(LS_KEY);
   updateFavCount();
   renderFavs(); 
   bookBack.style.display = "none";
+  bookPromo.value = '';  // очистка промокода
 };
 
 function goToPage(pageId, filterValue = 'all') {
@@ -2748,46 +2791,63 @@ if (productSlug) {
   const foundItem = catalog.find(item => item.slug === productSlug);
   if (foundItem) openModal(foundItem);
 }
-const ORDERS_KEY = "babays_orders";
 
-function readOrders() {
-  try {
-    return JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
-  } catch (e) {
-    console.error("Ошибка чтения заказов:", e);
-    return [];
-  }
+function writeOrders(orders) {
+  localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
 }
 
 function renderOrders() {
-  const orders = readOrders().reverse();   // ← теперь это работает
+  const orders = readOrders().reverse();
   const ordersList = document.getElementById("ordersList");
   ordersList.innerHTML = "";
 
   if (!orders.length) {
     ordersList.innerHTML = `<div style="text-align:center; color:#888; padding:20px 0;">История заказов пуста.</div>`;
-  } else {
-    orders.forEach((order, index) => {
-      const div = document.createElement("div");
-      div.className = "order-item";
-      div.innerHTML = `
-        <div style="font-weight:600; font-size:15px; color:var(--dark);">Заказ №${order.orderId}</div>
-        <div style="font-size:13px;color:#666">${order.date} • ${order.time}</div>
-        <div class="buttons">
-          <button class="view-order" data-index="${index}" style="flex:1;padding:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;">Просмотреть</button>
-        </div>
-      `;
-      ordersList.appendChild(div);
-    });
-
-    document.querySelectorAll(".view-order").forEach(btn => {
-      btn.onclick = () => {
-        const order = orders[btn.dataset.index];
-        renderOrderDetails(order);
-        document.getElementById("orderDetailsBack").style.display = "flex";
-      };
-    });
+    return;
   }
+
+  orders.forEach((order, index) => {
+    const div = document.createElement("div");
+    div.className = "order-item";
+    div.innerHTML = `
+      <div style="font-weight:600; font-size:15px; color:var(--dark);">Заказ №${order.orderId}</div>
+      <div style="font-size:13px;color:#666">${order.date} • ${order.time}</div>
+      <div class="buttons">
+        <button class="view-order" data-index="${index}" style="flex:1;padding:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;">Просмотреть</button>
+      </div>
+    `;
+    ordersList.appendChild(div);
+  });
+
+  document.querySelectorAll(".view-order").forEach(btn => {
+    btn.onclick = () => {
+      const order = orders[btn.dataset.index];
+      renderOrderDetails(order);
+      document.getElementById("orderDetailsBack").style.display = "flex";
+    };
+  });
+}
+
+function addToFavFromHistory(item) {
+  const favs = readFavs();
+  
+  // Берём фиксированный объём или дефолт 7 мл
+  let ml = item.mlFixed || item.ml || '7 мл';
+  let price = item.prices?.fixed || item.prices?.[7] || item.price || 0;
+
+  const newItem = {
+    id: item.id,
+    name: item.name,
+    img: item.img,
+    ml: ml,
+    price: price,
+    aromas: item.aromas || null
+  };
+  favs.push(newItem);
+  writeFavs(favs);
+
+  // Новое сообщение после добавления
+  alert('Товар добавлен в набор!');
 }
 
 function renderOrderDetails(order) {
@@ -2812,20 +2872,35 @@ function renderOrderDetails(order) {
   });
 
   document.getElementById("addAllToFav").onclick = () => {
-    order.items.forEach(item => addToFav({...item, nabory: false}));
+    order.items.forEach(item => addToFavFromHistory(item));
     document.getElementById("orderDetailsBack").style.display = "none";
   };
 
   document.querySelectorAll(".add-to-fav").forEach(btn => {
     btn.onclick = () => {
       const item = order.items[btn.dataset.i];
-      addToFav({...item, nabory: false});
+      addToFavFromHistory(item);
     };
   });
+
+  // Новая кнопка удаления отдельного заказа
+  const deleteBtn = document.createElement('button');
+  deleteBtn.textContent = 'Удалить этот заказ';
+  deleteBtn.style = "width:100%;margin-top:20px;padding:12px;background:#ff4d4d;color:#fff;border:none;border-radius:10px;cursor:pointer;";
+  deleteBtn.onclick = () => {
+    if (confirm(`Удалить заказ №${order.orderId}?`)) {
+      let orders = readOrders();
+      orders = orders.filter(o => o.orderId !== order.orderId);
+      writeOrders(orders);
+      document.getElementById("orderDetailsBack").style.display = "none";
+      renderOrders(); // Обновляем список
+    }
+  };
+  content.appendChild(deleteBtn);
 }
 
 document.getElementById('clearHistory').onclick = () => {
-  if (confirm("Очистить историю заказов?")) {
+  if (confirm("Очистить всю историю заказов?")) {
     localStorage.removeItem(ORDERS_KEY);
     renderOrders();
   }
@@ -2997,7 +3072,37 @@ document.getElementById('addBoxToFav').onclick = () => {
   showStep(0);
   document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
 };
+function renderOrders() {
+  const orders = readOrders().reverse();
+  const ordersList = document.getElementById("ordersList");
+  ordersList.innerHTML = "";
 
+  if (!orders.length) {
+    ordersList.innerHTML = `<div style="text-align:center; color:#888; padding:20px 0;">История заказов пуста.</div>`;
+    return;
+  }
+
+  orders.forEach((order, index) => {
+    const div = document.createElement("div");
+    div.className = "order-item";
+    div.innerHTML = `
+      <div style="font-weight:600; font-size:15px; color:var(--dark);">Заказ №${order.orderId}</div>
+      <div style="font-size:13px;color:#666">${order.date} • ${order.time}</div>
+      <div class="buttons">
+        <button class="view-order" data-index="${index}" style="flex:1;padding:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;">Просмотреть</button>
+      </div>
+    `;
+    ordersList.appendChild(div);
+  });
+
+  document.querySelectorAll(".view-order").forEach(btn => {
+    btn.onclick = () => {
+      const order = orders[btn.dataset.index];
+      renderOrderDetails(order);
+      document.getElementById("orderDetailsBack").style.display = "flex";
+    };
+  });
+}
 // Инициализация
 updateFavCount();
 goToPage('home');
@@ -3023,6 +3128,9 @@ navItems.forEach(item => {
     }
   };
 });
+document.getElementById('closeOrderDetails').onclick = () => {
+  document.getElementById('orderDetailsBack').style.display = 'none';
+};
 </script>
 
 </body>
