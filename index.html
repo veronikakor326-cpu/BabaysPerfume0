@@ -2541,16 +2541,18 @@ function goToPage(pageId, filterValue = 'all') {
 navItems.forEach(item => {
   item.onclick = () => {
     const pageId = item.dataset.page;
+
     if(pageId === "fav"){
-        renderFavs(); 
-        favBack.style.display="flex";
+      renderFavs(); 
+      favBack.style.display="flex";
     } else if (pageId === "support") {
-        supportBack.style.display="flex";
+      supportBack.style.display="flex";
     } else if (pageId === "orders") {
-        renderOrders();
-        ordersBack.style.display="flex";
+      // Вот это и было нужно — теперь точно работает
+      renderOrders();
+      document.getElementById("ordersBack").style.display = "flex";
     } else {
-        goToPage(pageId);
+      goToPage(pageId);
     }
   };
 });
@@ -2746,9 +2748,19 @@ if (productSlug) {
   const foundItem = catalog.find(item => item.slug === productSlug);
   if (foundItem) openModal(foundItem);
 }
+const ORDERS_KEY = "babays_orders";
+
+function readOrders() {
+  try {
+    return JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
+  } catch (e) {
+    console.error("Ошибка чтения заказов:", e);
+    return [];
+  }
+}
 
 function renderOrders() {
-  const orders = readOrders().reverse();
+  const orders = readOrders().reverse();   // ← теперь это работает
   const ordersList = document.getElementById("ordersList");
   ordersList.innerHTML = "";
 
@@ -2993,7 +3005,26 @@ renderSlider();
 startAutoplay();
 renderHomeSections();
 renderCatalog();
+// ЕДИНСТВЕННОЕ ИСПРАВЛЕНИЕ — ВКЛАДКА ЗАКАЗЫ
+navItems.forEach(item => {
+  item.onclick = () => {
+    const pageId = item.dataset.page;
+
+    if(pageId === "fav"){
+        renderFavs(); 
+        favBack.style.display="flex";
+    } else if (pageId === "support") {
+        supportBack.style.display="flex";
+    } else if (pageId === "orders") {
+        renderOrders();
+        document.getElementById("ordersBack").style.display = "flex";
+    } else {
+        goToPage(pageId);
+    }
+  };
+});
 </script>
 
 </body>
 </html>
+
