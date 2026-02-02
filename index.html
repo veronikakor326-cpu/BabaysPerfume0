@@ -2167,7 +2167,6 @@ catalog.forEach(item => {
     item.slug = namePart.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
   }
 });
-
 // ──────────────────────────────────────────────────────────────
  // ОСНОВНОЙ КОД (твой полностью + исправления)
 // ──────────────────────────────────────────────────────────────
@@ -2617,25 +2616,18 @@ sendOrder.onclick = () => {
   const final = sum - discount;
 
   let orderList = '';
-favs.forEach((f, i) => {
-  orderList += `${i + 1}. ${f.name} (${f.ml}) — ${f.price} ₽\n`;
-  if (f.name.startsWith('AromaBox') && f.aromas && f.aromas.length > 0) {
-    f.aromas.forEach((aroma, j) => {
-      orderList += `  - ${j + 1}. ${aroma}\n`;
-    });
-  }
-});
+  favs.forEach((f, i) => {
+    orderList += `${i + 1}. ${f.name} (${f.ml}) — ${f.price} ₽\n`;
+    if (f.name.startsWith('AromaBox') && f.aromas && f.aromas.length > 0) {
+      f.aromas.forEach((aroma, j) => {
+        orderList += `  - ${j + 1}. ${aroma}\n`;
+      });
+    }
+  });
 
-const giftText = "\n🎁 Подарок ";
+  const giftText = "\n🎁 Подарок ";
 
-let priceText = '';
-if (discount > 0) {
-  priceText = `💰 Сумма: ${sum} ₽\n${discountText}💳 Предварительная стоимость: ${final} ₽`;
-} else {
-  priceText = `💳 Предварительная стоимость: ${final} ₽`;
-}
-
-const text = encodeURIComponent(
+  const text = encodeURIComponent(
 ` БРОНЬ ЗАКАЗА №${orderId}
   Babays Perfume  ${date} • ${time}
 
@@ -2643,12 +2635,13 @@ const text = encodeURIComponent(
 ${orderList}${giftText}
 
 ━━━━━━━━━━━━━━
-${priceText}
+💰 Сумма: ${sum} ₽
+${discountText}💳 Предварительная стоимость: ${final} ₽
 ━━━━━━━━━━━━━━
 
 👤 Имя: ${bookName.value}
 🚚 Доставка: ${chosenDelivery}`
-);
+  );
 
   window.location.href = `https://t.me/babaysperfume1?text=${text}`;
 
