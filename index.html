@@ -533,22 +533,22 @@ header.appbar {
       <h4 style="text-align:center;margin-bottom:16px">Выберите формат</h4>
       <div class="format-card" data-format="standard">
         <div class="name">Стандарт</div>
-        <div>3 аромата по 550 ₽</div>
+        <div>Классическая подборка · 3 аромата </div>
         <div style="font-weight:600">1490 ₽</div>
       </div>
       <div class="format-card" data-format="mix">
         <div class="name">Микс</div>
-        <div>2 × 550 ₽ + 1 × 800 ₽</div>
+        <div>Для знакомства с премиум · 2 стандарт + 1 ниша</div>
         <div style="font-weight:600">1790 ₽</div>
       </div>
       <div class="format-card" data-format="hit">
         <div class="name">Хит продаж</div>
-        <div>1 × 550 ₽ + 2 × 800 ₽</div>
+        <div>Самый популярный выбор · 1 стандарт + 2 нишевых</div>
         <div style="font-weight:600">1990 ₽</div>
       </div>
       <div class="format-card" data-format="premium">
         <div class="name">Премиум</div>
-        <div>3 аромата по 800 ₽</div>
+        <div>Только нишевые ароматы · 3 × premium</div>
         <div style="font-weight:600">2190 ₽</div>
       </div>
       <button id="toStep2" style="width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:10px;margin-top:20px;cursor:pointer" disabled>Далее</button>
@@ -556,6 +556,7 @@ header.appbar {
 
     <div class="step" id="step2">
       <h4 style="text-align:center;margin-bottom:16px">Выберите ароматы</h4>
+<input type="search" id="aromaSearch" placeholder="Поиск аромата..." style="width:100%; padding:12px; border-radius:10px; border:1px solid #ddd; margin:0 0 16px 0; font-size:15px; box-sizing:border-box;">
       <div class="selected-slots" id="selectedSlots"></div>
       <div id="hints" style="color:#666;font-size:14px;margin:16px 0;"></div>
       <div class="aroma-grid" id="aromaGrid"></div>
@@ -570,8 +571,7 @@ header.appbar {
       <div class="box-img" style="background-image:url('https://via.placeholder.com/600x300/f5f0e8/b3873a?text=AromaBox')"></div>
       <ul id="summaryAromas" style="list-style:none;padding:0;margin:0 0 16px 0;"></ul>
       <div id="summaryNotes" style="margin-bottom:20px">
-        <b>Общее звучание нот:</b>
-        <p id="combinedNotes"></p>
+        
       </div>
       <div style="font-size:20px;font-weight:700;text-align:center;margin:20px 0">
         Итого: <span id="boxPrice"></span> ₽
@@ -1976,30 +1976,32 @@ priceCategory: 800,
 priceCategory: 550,
   },
   {
-    name: "Набор Топ-3 • 3 × 15 мл",
-    gender: "Унисекс",
+    name: "AromaBox для мужчин(свежий) • 3 × 7 мл",
+    gender: "Мужской",
     img: "https://via.placeholder.com/600x600/f5f0e8/b3873a?text=Набор+Топ-3",
-    notes: {
-      top: "Разнообразные цитрусы и специи",
-      middle: "Цветы и гурманские аккорды",
-      base: "Древесина, амбра, ваниль"
-    },
-    prices: { fixed: 4900 },
-    mlFixed: "45 мл (3×15)",
+    aromas: ["Roja dove - Elysium", "Louis Vuitton - Imagination", "Bvlgari - Tygar"],
+    prices: { fixed: 2190 },
+    mlFixed: "21 мл (3×7)",
     nabory: true,
     hit: true
   },
   {
-    name: "Discovery Set • 5 × 7 мл",
+    name: "AromaBox (комплиментарный)• 3 × 7 мл",
     gender: "Унисекс",
     img: "https://via.placeholder.com/600x600/000/fff?text=Discovery+Set",
-    notes: {
-      top: "Разнообразные",
-      middle: "Цветочные и гурманские",
-      base: "Древесные и амбровые"
-    },
-    prices: { fixed: 2490 },
-    mlFixed: "35 мл (5×7)",
+    aromas: ["Clive Christian - Blonde Amber", "Clive Christian - Hedonistic", "Hormone Paris - Testosterone"],
+    prices: { fixed: 2190 },
+    mlFixed: "21 мл (3×7)",
+    nabory: true,
+    new: true
+  },
+  {
+    name: "AromaBox для женщин• 3 × 7 мл",
+    gender: "Женский",
+    img: "https://via.placeholder.com/600x600/000/fff?text=Discovery+Set",
+    aromas: ["Parfum de marly - Delina Exclusif", "Orlov Paris - De Young Red", "Louis Vuitton - Symphony"],
+    prices: { fixed: 2190 },
+    mlFixed: "21 мл (3×7)",
     nabory: true,
     new: true
   },
@@ -2125,16 +2127,26 @@ function createProductCard(item) {
       <div style="font-size:48px; margin-bottom:12px;">🎁</div>
       <div style="font-size:18px; font-weight:700; margin-bottom:8px;">Собрать свой AromaBox</div>
       <div style="font-size:13px; opacity:0.9; padding:0 12px;">
-        Выбери формат и ароматы под себя
+        
       </div>
     `;
     div.onclick = () => {
       document.getElementById("aromaBoxBack").style.display = "flex";
     };
   } else {
-    div.innerHTML = `<div class="img" style="background-image:url('${item.img}')"></div>${badges}<div class="info"><div class="name">${item.name}</div><div class="meta">${item.gender}</div></div>`;
-    div.onclick = () => openModal(item);
-  }
+  // Всегда только гендер — для всех карточек (включая наборы)
+  const metaContent = item.gender || '';
+
+  div.innerHTML = `
+    <div class="img" style="background-image:url('${item.img}')"></div>
+    ${badges}
+    <div class="info">
+      <div class="name">${item.name}</div>
+      <div class="meta">${metaContent}</div>  <!-- ← ТОЛЬКО гендер, состав НЕ пишем -->
+    </div>
+  `;
+  div.onclick = () => openModal(item);
+}
   return div;
 }
 
@@ -2177,11 +2189,26 @@ function openModal(item){
   modalName.textContent = item.name;
   modalGender.textContent = item.gender;
 
+  modalNotes.innerHTML = '';
+
+modalNotes.innerHTML = '';
+
+if (item.notes) {
   modalNotes.innerHTML = `
-    <b>Верхние ноты:</b> ${item.notes.top}<br>
-    <b>Средние ноты:</b> ${item.notes.middle}<br>
-    <b>Базовые ноты:</b> ${item.notes.base}
+    <b>Верхние ноты:</b> ${item.notes.top || '—'}<br>
+    <b>Средние ноты:</b> ${item.notes.middle || '—'}<br>
+    <b>Базовые ноты:</b> ${item.notes.base || '—'}
   `;
+} else if (item.nabory) {
+  if (item.aromas && item.aromas.length > 0) {
+    modalNotes.innerHTML = `
+      <b>Состав набора:</b><br>
+      ${item.aromas.map(a => `• ${a}`).join('<br>')}
+    `;
+  } else {
+    modalNotes.innerHTML = '<i>Состав набора уточняется</i>';
+  }
+}
 
   const extraVol = priceBlock.parentNode.querySelector('.extra-vol');
   if (extraVol) extraVol.remove();
@@ -2936,15 +2963,39 @@ function showStep(stepIndex) {
 
 function updateHints() {
   if (!selectedFormat) return;
+
   const comp = formats[selectedFormat].composition;
   const lowCount = selectedAromas.filter(a => a.priceCategory === 550).length;
   const highCount = selectedAromas.filter(a => a.priceCategory === 800).length;
+
   const neededLow = comp[550] - lowCount;
   const neededHigh = comp[800] - highCount;
+
   let hintText = '';
-  if (neededLow > 0) hintText += `Выберите ${neededLow} аромат(ов) по 550 ₽. `;
-  if (neededHigh > 0) hintText += `Выберите ${neededHigh} аромат(ов) по 800 ₽.`;
-  document.getElementById('hints').textContent = hintText.trim() || 'Состав готов!';
+
+  // Функция склонения
+  function getWord(count, one, twoFour, many) {
+    if (count === 1) return one;
+    if (count >= 2 && count <= 4) return twoFour;
+    return many;
+  }
+
+  if (neededLow > 0) {
+    const word = getWord(neededLow, 'классический аромат', 'классических аромата', 'классических ароматов');
+    hintText += `Выберите ${neededLow} ${word}. `;
+  }
+
+  if (neededHigh > 0) {
+    const word = getWord(neededHigh, 'премиальный аромат', 'премиальных аромата', 'премиальных ароматов');
+    hintText += `Выберите ${neededHigh} ${word}.`;
+  }
+
+  // Если всё выбрано
+  if (neededLow <= 0 && neededHigh <= 0) {
+    hintText = 'Состав готов!';
+  }
+
+  document.getElementById('hints').textContent = hintText.trim();
   document.getElementById('toStep3').disabled = neededLow > 0 || neededHigh > 0;
 }
 
@@ -2990,14 +3041,55 @@ function renderAromaGrid() {
   ).forEach(item => {
     const card = document.createElement('div');
     card.className = 'aroma-card';
+
+    // Определяем тип бейджа
+    const isPremium = item.priceCategory === 800;
+    const badgeText = isPremium ? 'PREMIUM' : 'CLASSIC';
+    const badgeBg = isPremium ? '#1a1a1a' : 'var(--accent)'; // тёмный для премиум, золотой для классик
+    const badgeColor = isPremium ? '#ffffff' : '#ffffff'; // белый текст в обоих случаях
+
     card.innerHTML = `
-      <img src="${item.img}" alt="${item.name}">
-      <div class="name">${item.name}</div>
+      <div style="position: relative;">
+        <img src="${item.img}" alt="${item.name}" style="width:100%; height:140px; object-fit:cover; border-radius:12px 12px 0 0;">
+        
+        <!-- Бейдж -->
+        <div style="
+          position: absolute;
+          top: 8px;
+          left: 8px;
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 10px;
+          font-weight: 800;
+          color: ${badgeColor};
+          text-transform: uppercase;
+          letter-spacing: 0.6px;
+          background: ${badgeBg};
+          box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+          line-height: 1;
+        ">
+          ${badgeText}
+        </div>
+      </div>
+      <div style="padding: 12px;">
+        <div class="name" style="font-size:14px; font-weight:600; margin-bottom:4px;">${item.name}</div>
+        <div style="font-size:12px; color:var(--muted);">
+         
+        </div>
+      </div>
     `;
+
     card.dataset.priceCategory = item.priceCategory;
     card.onclick = () => addAromaToBox(item);
     aromaGrid.appendChild(card);
   });
+
+  // Сброс поиска после перерисовки (правильное место)
+  if (aromaSearch) {
+    aromaSearch.value = '';
+    const cards = document.querySelectorAll('#aromaGrid .aroma-card');
+    cards.forEach(card => card.style.display = '');
+  }
 }
 
 function addAromaToBox(item) {
@@ -3024,7 +3116,7 @@ function renderSummary() {
   summaryAromas.innerHTML = '';
   selectedAromas.forEach(aroma => {
     const li = document.createElement('li');
-    li.textContent = `${aroma.name} (7 мл, ${aroma.prices[7]} ₽)`;
+    li.textContent = `${aroma.name} `;
     summaryAromas.appendChild(li);
   });
   document.getElementById('boxPrice').textContent = formats[selectedFormat].price;
@@ -3045,6 +3137,7 @@ document.getElementById('toStep2').onclick = () => {
   renderSelectedSlots();
   renderAromaGrid();
   updateHints();
+if (aromaSearch) aromaSearch.value = '';
 };
 
 document.getElementById('prevStep').onclick = () => showStep(0);
@@ -3054,7 +3147,10 @@ document.getElementById('toStep3').onclick = () => {
   renderSummary();
 };
 
-document.getElementById('prevStep2').onclick = () => showStep(1);
+document.getElementById('prevStep2').onclick = () => {
+  showStep(1);
+  if (aromaSearch) aromaSearch.value = '';          // ← добавлена эта строка
+};
 
 document.getElementById('addBoxToFav').onclick = () => {
   const boxItem = {
@@ -3131,6 +3227,20 @@ navItems.forEach(item => {
 document.getElementById('closeOrderDetails').onclick = () => {
   document.getElementById('orderDetailsBack').style.display = 'none';
 };
+// Поиск в аромабоксе (шаг 2)
+const aromaSearch = document.getElementById('aromaSearch');
+
+if (aromaSearch) {
+  aromaSearch.addEventListener('input', () => {
+    const query = aromaSearch.value.trim().toLowerCase();
+    const cards = document.querySelectorAll('#aromaGrid .aroma-card');
+
+    cards.forEach(card => {
+      const name = card.querySelector('.name')?.textContent?.toLowerCase() || '';
+      card.style.display = name.includes(query) ? '' : 'none';
+    });
+  });
+}
 </script>
 
 </body>
